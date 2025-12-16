@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="NutriAI.Views.SearchPage"
+    BackgroundColor="#FAFAFA">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="25">
+
+            <!-- HEADER -->
+            <Grid ColumnDefinitions="*,Auto" Padding="0,10,0,0">
+                <HorizontalStackLayout Spacing="10">
+                    <Image Source="apple_logo.png" HeightRequest="30"/>
+                    <Label Text="NutriAI"
+                           FontSize="26"
+                           FontAttributes="Bold"
+                           TextColor="#2FAF4A"/>
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Grid.Column="1" Spacing="15">
+                    <Image Source="search_icon.png" HeightRequest="22"/>
+                    <Image Source="bell_icon.png" HeightRequest="22"/>
+                </HorizontalStackLayout>
+            </Grid>
+
+            <!-- PAGE TITLE -->
+            <Label Text="Search Recipes"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="#1C1C1C"/>
+
+            <!-- SEARCH BAR -->
+            <Border StrokeThickness="1"
+                    Stroke="#E0E0E0"
+                    Background="White"
+                    StrokeShape="RoundRectangle 15"
+                    HeightRequest="55">
+
+                <Grid ColumnDefinitions="*,Auto" Padding="15,0">
+
+                    <Entry Placeholder="Try: 'high-protein dinner under 600 calories'"
+                           PlaceholderColor="#A0A0A0"
+                           TextColor="Black"
+                           FontSize="16"
+                           BackgroundColor="Transparent"/>
+
+                    <Border Grid.Column="1"
+                            Background="#2FAF4A"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 10"
+                            WidthRequest="45"
+                            HeightRequest="35"
+                            VerticalOptions="Center">
+
+                        <Image Source="search_white.png"
+                               HeightRequest="20"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- FILTER CHIPS -->
+            <HorizontalStackLayout Spacing="12" VerticalOptions="Start">
+
+                <!-- MEAL TYPE -->
+                <Border Background="White"
+                        Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 22"
+                        Padding="15,10">
+
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Text="Meal Type" FontSize="15"/>
+                        <Image Source="chevron_down.png" HeightRequest="14"/>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- DIET -->
+                <Border Background="White"
+                        Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 22"
+                        Padding="15,10">
+
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Text="Diet" FontSize="15"/>
+                        <Image Source="chevron_down.png" HeightRequest="14"/>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- CUISINE -->
+                <Border Background="White"
+                        Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 22"
+                        Padding="15,10">
+
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Text="Cuisine" FontSize="15"/>
+                        <Image Source="chevron_down.png" HeightRequest="14"/>
+                    </HorizontalStackLayout>
+                </Border>
+
+            </HorizontalStackLayout>
+
+            <!-- (Empty space for now—results will appear here later) -->
+            <Grid HeightRequest="300"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

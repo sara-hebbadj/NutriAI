@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="NutriAI.Views.SavedRecipesPage"
+    BackgroundColor="#FAFAFA">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="25">
+
+            <!-- HEADER -->
+            <Grid ColumnDefinitions="*,Auto" Padding="0,10,0,0">
+                <HorizontalStackLayout Spacing="10">
+                    <Image Source="apple_logo.png" HeightRequest="30"/>
+                    <Label Text="NutriAI"
+                           FontSize="26"
+                           FontAttributes="Bold"
+                           TextColor="#2FAF4A"/>
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Grid.Column="1" Spacing="15">
+                    <Image Source="search_icon.png" HeightRequest="22"/>
+                    <Image Source="bell_icon.png" HeightRequest="22"/>
+                </HorizontalStackLayout>
+            </Grid>
+
+
+            <!-- PAGE TITLE -->
+            <Label Text="Saved Recipes"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="#222"/>
+
+            <!-- SINGLE RECIPE CARD -->
+            <Border
+                Stroke="#E5E5E5"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 20"
+                Padding="0"
+                Shadow="2">
+
+                <VerticalStackLayout>
+
+                    <!-- Placeholder Image -->
+                    <Border BackgroundColor="#EDEDED"
+                            HeightRequest="180"
+                            StrokeShape="RoundRectangle 20"
+                            Margin="0,0,0,0"/>
+
+                    <VerticalStackLayout Padding="20" Spacing="12">
+
+                        <!-- Title + Calories -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Protein Smoothie Bowl"
+                                   FontSize="20"
+                                   FontAttributes="Bold"
+                                   TextColor="#222"/>
+
+                            <HorizontalStackLayout Grid.Column="1" Spacing="5">
+                                <Image Source="flame_icon.png" HeightRequest="18"/>
+                                <Label Text="350 cal"
+                                       FontSize="14"
+                                       TextColor="#444"/>
+                            </HorizontalStackLayout>
+                        </Grid>
+
+                        <!-- Time -->
+                        <HorizontalStackLayout Spacing="6">
+                            <Image Source="clock_icon.png" HeightRequest="16"/>
+                            <Label Text="5 min"
+                                   FontSize="14"
+                                   TextColor="#444"/>
+                        </HorizontalStackLayout>
+
+                        <!-- Nutrition tags -->
+                        <HorizontalStackLayout Spacing="10">
+
+                            <Border BackgroundColor="#D7EDDA"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="8,4">
+                                <Label Text="Protein: 25g"
+                                       FontSize="13"
+                                       TextColor="#234B2A"/>
+                            </Border>
+
+                            <Border BackgroundColor="#D7EDDA"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="8,4">
+                                <Label Text="Carbs: 40g"
+                                       FontSize="13"
+                                       TextColor="#234B2A"/>
+                            </Border>
+
+                            <Border BackgroundColor="#D7EDDA"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="8,4">
+                                <Label Text="Fat: 8g"
+                                       FontSize="13"
+                                       TextColor="#234B2A"/>
+                            </Border>
+
+                        </HorizontalStackLayout>
+
+                        <!-- Description -->
+                        <Label Text="Quick and nutritious breakfast with high protein content."
+                               TextColor="#555"
+                               FontSize="14"/>
+
+                        <!-- Saved + View -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="0,10,0,0">
+
+                            <HorizontalStackLayout Spacing="4">
+                                <Image Source="heart_filled.png"
+                                       HeightRequest="18"/>
+                                <Label Text="Saved"
+                                       TextColor="#D64545"
+                                       FontSize="14"/>
+                            </HorizontalStackLayout>
+
+                            <HorizontalStackLayout Grid.Column="2" Spacing="4">
+                                <Image Source="view_icon.png"
+                                       HeightRequest="18"/>
+                                <Label Text="View"
+                                       TextColor="#444"
+                                       FontAttributes="Bold"
+                                       FontSize="14"/>
+                            </HorizontalStackLayout>
+
+                        </Grid>
+
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="NutriAI.Views.SignupPage"
+    BackgroundColor="#FAFAFA">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="25">
+
+            <!-- HEADER -->
+            <Grid ColumnDefinitions="*,Auto" Padding="0,10,0,0">
+                <HorizontalStackLayout Spacing="10">
+                    <Image Source="apple_logo.png" HeightRequest="30"/>
+                    <Label Text="NutriAI"
+                           FontSize="26"
+                           FontAttributes="Bold"
+                           TextColor="#2FAF4A"/>
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Grid.Column="1" Spacing="15">
+                    <Image Source="search_icon.png" HeightRequest="22"/>
+                    <Image Source="bell_icon.png" HeightRequest="22"/>
+                </HorizontalStackLayout>
+            </Grid>
+
+
+            <!-- LOGIN / SIGNUP TABS -->
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,2">
+
+                <!-- Tab labels -->
+                <Label Text="Log In"
+                       Grid.Column="0"
+                       HorizontalTextAlignment="Center"
+                       FontSize="18"
+                       TextColor="#444"/>
+
+                <Label Text="Sign Up"
+                       Grid.Column="1"
+                       HorizontalTextAlignment="Center"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="#2FAF4A"/>
+
+                <!-- Underline -->
+                <BoxView Grid.Row="1"
+                         Grid.Column="1"
+                         HeightRequest="2"
+                         BackgroundColor="#2FAF4A"/>
+            </Grid>
+
+
+            <!-- FULL NAME -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Full Name" FontSize="16" TextColor="#333"/>
+
+                <Border Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        BackgroundColor="White"
+                        StrokeShape="RoundRectangle 12"
+                        HeightRequest="50">
+
+                    <Entry Placeholder="Your full name"
+                           BackgroundColor="Transparent"
+                           TextColor="Black"
+                           PlaceholderColor="#A0A0A0"
+                           Margin="12,0"/>
+                </Border>
+            </VerticalStackLayout>
+
+
+            <!-- EMAIL -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Email" FontSize="16" TextColor="#333"/>
+
+                <Border Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        BackgroundColor="White"
+                        StrokeShape="RoundRectangle 12"
+                        HeightRequest="50">
+
+                    <Entry Placeholder="example@mail.com"
+                           Keyboard="Email"
+                           BackgroundColor="Transparent"
+                           TextColor="Black"
+                           PlaceholderColor="#A0A0A0"
+                           Margin="12,0"/>
+                </Border>
+            </VerticalStackLayout>
+
+
+            <!-- PASSWORD -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Password" FontSize="16" TextColor="#333"/>
+
+                <Border Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        BackgroundColor="White"
+                        StrokeShape="RoundRectangle 12"
+                        HeightRequest="50">
+
+                    <Entry Placeholder="Enter password"
+                           IsPassword="True"
+                           BackgroundColor="Transparent"
+                           TextColor="Black"
+                           PlaceholderColor="#A0A0A0"
+                           Margin="12,0"/>
+                </Border>
+            </VerticalStackLayout>
+
+
+            <!-- CONFIRM PASSWORD -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Confirm Password" FontSize="16" TextColor="#333"/>
+
+                <Border Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        BackgroundColor="White"
+                        StrokeShape="RoundRectangle 12"
+                        HeightRequest="50">
+
+                    <Entry Placeholder="Confirm password"
+                           IsPassword="True"
+                           BackgroundColor="Transparent"
+                           TextColor="Black"
+                           PlaceholderColor="#A0A0A0"
+                           Margin="12,0"/>
+                </Border>
+            </VerticalStackLayout>
+
+
+            <!-- SIGN UP BUTTON -->
+            <Border BackgroundColor="#2FAF4A"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 18"
+                    HeightRequest="55"
+                    Margin="0,20,0,0">
+
+                <Button Text="Sign Up"
+                        BackgroundColor="Transparent"
+                        TextColor="White"
+                        FontSize="18"
+                        FontAttributes="Bold"/>
+            </Border>
+
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

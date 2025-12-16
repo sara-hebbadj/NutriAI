@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Application 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="NutriAI.App">
+
+
+    <Application.Resources>
+
+        <ResourceDictionary>
+
+            <!-- COLORS -->
+            <Color x:Key="PrimaryColor">#4CAF50</Color>
+            <!-- Green -->
+            <Color x:Key="SecondaryColor">#2E7D32</Color>
+            <Color x:Key="LightGray">#F2F2F2</Color>
+            <Color x:Key="DarkText">#111111</Color>
+
+            <!-- FONT SIZES -->
+            <x:Double x:Key="TitleFontSize">26</x:Double>
+            <x:Double x:Key="SubtitleFontSize">18</x:Double>
+            <x:Double x:Key="BodyFontSize">14</x:Double>
+
+            <!-- STYLES -->
+            <Style x:Key="CategoryChip" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#ECEBFF"/>
+                <Setter Property="TextColor" Value="#4A47A3"/>
+                <Setter Property="CornerRadius" Value="20"/>
+                <Setter Property="Padding" Value="10,5"/>
+                <Setter Property="Margin" Value="5"/>
+            </Style>
+            
+            <Style TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource DarkText}" />
+                <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
+            </Style>
+
+            <Style TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="Padding" Value="14" />
+            </Style>
+
+            <Style TargetType="Border">
+                <Setter Property="Stroke" Value="#DDDDDD" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="StrokeShape">
+                    <Setter.Value>
+                        <RoundRectangle CornerRadius="12" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+
+    </Application.Resources>
+</Application>

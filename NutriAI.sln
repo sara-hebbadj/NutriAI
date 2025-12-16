@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36717.8 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriAI", "NutriAI.csproj", "{4512748E-1A0F-4A0E-94EC-AD20F0EC835C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4512748E-1A0F-4A0E-94EC-AD20F0EC835C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4512748E-1A0F-4A0E-94EC-AD20F0EC835C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4512748E-1A0F-4A0E-94EC-AD20F0EC835C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4512748E-1A0F-4A0E-94EC-AD20F0EC835C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3207BF25-746D-4010-BFDF-7AA48441F8EF}
+	EndGlobalSection
+EndGlobal

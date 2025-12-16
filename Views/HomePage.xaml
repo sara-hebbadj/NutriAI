@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="NutriAI.Views.HomePage"
+    BackgroundColor="#FAFAFA">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="20">
+
+            <!-- HEADER -->
+            <Grid ColumnDefinitions="*,Auto" Padding="0,10,0,0">
+                <HorizontalStackLayout Spacing="10">
+                    <Image Source="apple_logo.png" HeightRequest="30"/>
+                    <Label Text="NutriAI"
+                           FontSize="26"
+                           FontAttributes="Bold"
+                           TextColor="#2FAF4A" />
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Grid.Column="1" Spacing="15">
+                    <Image Source="search_icon.png" HeightRequest="22"/>
+                    <Image Source="bell_icon.png" HeightRequest="22"/>
+                </HorizontalStackLayout>
+            </Grid>
+
+
+            <!-- SEARCH BAR -->
+            <Border StrokeThickness="0"
+                    Background="White"
+                    StrokeShape="RoundRectangle 15"
+                    HeightRequest="55">
+
+                <Grid ColumnDefinitions="*,Auto" Padding="15,0">
+
+                    <Entry Placeholder="Ask for recipes..."
+                           PlaceholderColor="#A0A0A0"
+                           TextColor="Black"
+                           FontSize="16"
+                           BackgroundColor="Transparent"/>
+
+                    <Border Grid.Column="1"
+                            Background="#2FAF4A"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 10"
+                            WidthRequest="45"
+                            HeightRequest="35"
+                            VerticalOptions="Center">
+
+                        <Image Source="search_white.png"
+                               HeightRequest="20"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Border>
+                </Grid>
+            </Border>
+
+
+            <!-- FILTER CHIPS -->
+            <ScrollView Orientation="Horizontal">
+                <HorizontalStackLayout Spacing="10">
+
+                    <!-- FILTER CHIP -->
+                    <Border Background="White"
+                            Stroke="#E0E0E0"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="12,8">
+
+                        <HorizontalStackLayout Spacing="5">
+                            <Label Text="Meal Type" FontSize="14"/>
+                            <Image Source="chevron_down.png" HeightRequest="14"/>
+                        </HorizontalStackLayout>
+
+                    </Border>
+
+                    <Border Background="White"
+                            Stroke="#E0E0E0"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="12,8">
+
+                        <HorizontalStackLayout Spacing="5">
+                            <Label Text="Diet" FontSize="14"/>
+                            <Image Source="chevron_down.png" HeightRequest="14"/>
+                        </HorizontalStackLayout>
+
+                    </Border>
+
+                    <Border Background="White"
+                            Stroke="#E0E0E0"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="12,8">
+
+                        <HorizontalStackLayout Spacing="5">
+                            <Label Text="Cuisine" FontSize="14"/>
+                            <Image Source="chevron_down.png" HeightRequest="14"/>
+                        </HorizontalStackLayout>
+
+                    </Border>
+
+                    <Border Background="White"
+                            Stroke="#E0E0E0"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="12,8">
+
+                        <HorizontalStackLayout Spacing="5">
+                            <Label Text="Time" FontSize="14"/>
+                            <Image Source="chevron_down.png" HeightRequest="14"/>
+                        </HorizontalStackLayout>
+
+                    </Border>
+
+                </HorizontalStackLayout>
+            </ScrollView>
+
+
+            <!-- SECTION TITLE -->
+            <Label Text="Recommended For You"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="Black" />
+
+
+            <!-- RECIPE CARD -->
+            <Border StrokeThickness="0"
+                    Background="White"
+                    StrokeShape="RoundRectangle 25"
+                    Margin="0,0,0,10">
+
+                <VerticalStackLayout Spacing="10">
+
+                    <!-- IMAGE placeholder -->
+                    <Border HeightRequest="180"
+                            Background="#EDEDED"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 25"/>
+
+                    <VerticalStackLayout Padding="15" Spacing="8">
+
+                        <!-- Title -->
+                        <Label Text="Grilled Chicken with Quinoa"
+                               FontSize="20"
+                               FontAttributes="Bold" />
+
+                        <!-- Time + calories -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+
+                            <HorizontalStackLayout Spacing="5">
+                                <Image Source="clock_icon.png" HeightRequest="16"/>
+                                <Label Text="25 min" TextColor="#707070" />
+                            </HorizontalStackLayout>
+
+                            <HorizontalStackLayout Grid.Column="2" Spacing="5">
+                                <Image Source="flame_icon.png" HeightRequest="16"/>
+                                <Label Text="420 cal"
+                                       TextColor="#707070" />
+                            </HorizontalStackLayout>
+
+                        </Grid>
+
+                        <!-- TAGS -->
+                        <HorizontalStackLayout Spacing="10">
+
+                            <Border Background="#DFF4DF"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="10,5">
+                                <Label Text="Protein: 35g" FontSize="13" TextColor="#2FAF4A"/>
+                            </Border>
+
+                            <Border Background="#DFF4DF"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="10,5">
+                                <Label Text="Carbs: 45g" FontSize="13" TextColor="#2FAF4A"/>
+                            </Border>
+
+                            <Border Background="#DFF4DF"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="10,5">
+                                <Label Text="Fat: 12g" FontSize="13" TextColor="#2FAF4A"/>
+                            </Border>
+
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
