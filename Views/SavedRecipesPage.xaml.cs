@@ -9,4 +9,10 @@ public partial class SavedRecipesPage : ContentPage
         InitializeComponent();
         BindingContext = vm;
     }
+    private async void OnRecipeTapped(object sender, EventArgs e)
+    {
+        // Navigate to Recipe Details page
+        await Shell.Current.GoToAsync("RecipeDetailsPage");
+
+    }
 }

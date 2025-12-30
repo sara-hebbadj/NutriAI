@@ -10,7 +10,7 @@
         <ShellContent
             Title="Home"
             ContentTemplate="{DataTemplate views:HomePage}" />
-
+       
         <ShellContent
             Title="Search"
             ContentTemplate="{DataTemplate views:SearchPage}" />

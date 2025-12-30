@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NutriAI.Views.HealthGoalsPage"
+             Title="HealthGoals">
+    <VerticalStackLayout Padding="20">
+
+        <Label 
+        Text="Your Health Goal"
+        FontSize="20"
+        Margin="0,0,0,10" />
+
+        <Entry 
+        Text="{Binding Goal}"
+        Placeholder="Enter your goal" />
+
+        <Button 
+        Text="Save"
+        Command="{Binding SaveCommand}" />
+
+    </VerticalStackLayout>
+</ContentPage>

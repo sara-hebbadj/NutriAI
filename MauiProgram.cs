@@ -32,6 +32,11 @@ public static class MauiProgram
         builder.Services.AddSingleton<SavedRecipesViewModel>();
         builder.Services.AddSingleton<ProfileViewModel>();
         builder.Services.AddSingleton<SignupViewModel>();
+        builder.Services.AddSingleton<HealthGoalsViewModel>();
+        builder.Services.AddSingleton<HelpSupportViewModel>();
+        builder.Services.AddSingleton<DietaryPreferencesViewModel>();
+        builder.Services.AddSingleton<AllergiesViewModel>();
+        builder.Services.AddSingleton<AccountSettingsViewModel>();
 
         // ----------------------------------------
         // REGISTER PAGES
@@ -42,7 +47,11 @@ public static class MauiProgram
         builder.Services.AddSingleton<ProfilePage>();
         builder.Services.AddSingleton<SignupPage>();
         builder.Services.AddTransient<RecipeDetailsPage>();
-
+        builder.Services.AddSingleton<HealthGoalsPage>();
+        builder.Services.AddSingleton<DietaryPreferencesPage>();
+        builder.Services.AddSingleton<HelpSupportPage>();
+        builder.Services.AddSingleton<AccountSettingsPage>();
+        builder.Services.AddSingleton<AllergiesPage>();
 
         // Recipe details should be transient, not global
         builder.Services.AddTransient<RecipeDetailsPage>();

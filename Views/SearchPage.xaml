@@ -61,49 +61,112 @@
                 </Grid>
             </Border>
 
-            <!-- FILTER CHIPS -->
-            <HorizontalStackLayout Spacing="12" VerticalOptions="Start">
+            <!-- FILTER CHIPS + FLYOUTS -->
+            <VerticalStackLayout Spacing="10">
 
-                <!-- MEAL TYPE -->
-                <Border Background="White"
-                        Stroke="#E0E0E0"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 22"
-                        Padding="15,10">
+                <!-- CHIP ROW -->
+                <HorizontalStackLayout Spacing="12">
 
-                    <HorizontalStackLayout Spacing="6">
-                        <Label Text="Meal Type" FontSize="15"/>
-                        <Image Source="chevron_down.png" HeightRequest="14"/>
-                    </HorizontalStackLayout>
+                    <!-- MEAL TYPE -->
+                    <Border x:Name="MealTypeChip"
+                Background="White"
+                Stroke="#E0E0E0"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 22"
+                Padding="15,10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnMealTypeTapped"/>
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="6">
+                            <Label x:Name="MealTypeLabel" Text="Meal Type" FontSize="15"/>
+                            <Image Source="chevron_down.png" HeightRequest="14"/>
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <!-- DIET -->
+                    <Border x:Name="DietChip"
+                Background="White"
+                Stroke="#E0E0E0"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 22"
+                Padding="15,10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnDietTapped"/>
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="6">
+                            <Label x:Name="DietLabel" Text="Diet" FontSize="15"/>
+                            <Image Source="chevron_down.png" HeightRequest="14"/>
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <!-- CUISINE -->
+                    <Border x:Name="CuisineChip"
+                Background="White"
+                Stroke="#E0E0E0"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 22"
+                Padding="15,10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCuisineTapped"/>
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="6">
+                            <Label x:Name="CuisineLabel" Text="Cuisine" FontSize="15"/>
+                            <Image Source="chevron_down.png" HeightRequest="14"/>
+                        </HorizontalStackLayout>
+                    </Border>
+
+                </HorizontalStackLayout>
+
+                <!-- MEAL TYPE FLYOUT -->
+                <Border x:Name="MealTypeFlyout"
+            IsVisible="False"
+            Background="White"
+            Stroke="#E0E0E0"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 16"
+            Padding="15">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Breakfast" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
+                        <Label Text="Lunch" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
+                        <Label Text="Dinner" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
+                        <Label Text="Snack" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
+                    </VerticalStackLayout>
                 </Border>
 
-                <!-- DIET -->
-                <Border Background="White"
-                        Stroke="#E0E0E0"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 22"
-                        Padding="15,10">
-
-                    <HorizontalStackLayout Spacing="6">
-                        <Label Text="Diet" FontSize="15"/>
-                        <Image Source="chevron_down.png" HeightRequest="14"/>
-                    </HorizontalStackLayout>
+                <!-- DIET FLYOUT -->
+                <Border x:Name="DietFlyout"
+            IsVisible="False"
+            Background="White"
+            Stroke="#E0E0E0"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 16"
+            Padding="15">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Balanced" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
+                        <Label Text="Keto" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
+                        <Label Text="Vegan" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
+                        <Label Text="Vegetarian" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
+                    </VerticalStackLayout>
                 </Border>
 
-                <!-- CUISINE -->
-                <Border Background="White"
-                        Stroke="#E0E0E0"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 22"
-                        Padding="15,10">
-
-                    <HorizontalStackLayout Spacing="6">
-                        <Label Text="Cuisine" FontSize="15"/>
-                        <Image Source="chevron_down.png" HeightRequest="14"/>
-                    </HorizontalStackLayout>
+                <!-- CUISINE FLYOUT -->
+                <Border x:Name="CuisineFlyout"
+            IsVisible="False"
+            Background="White"
+            Stroke="#E0E0E0"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 16"
+            Padding="15">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Italian" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
+                        <Label Text="Asian" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
+                        <Label Text="Middle Eastern" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
+                        <Label Text="American" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
+                    </VerticalStackLayout>
                 </Border>
 
-            </HorizontalStackLayout>
+            </VerticalStackLayout>
+
 
             <!-- (Empty space for now—results will appear here later) -->
             <Grid HeightRequest="300"/>

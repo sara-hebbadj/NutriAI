@@ -117,60 +117,43 @@
 
 
             <!-- MENU LIST -->
-            <Border BackgroundColor="White"
-                    StrokeShape="RoundRectangle 25"
-                    StrokeThickness="0"
-                    Padding="0"
-                    Shadow="2">
+            <VerticalStackLayout>
 
-                <VerticalStackLayout>
+                <Button Text="Dietary Preferences"
+                        TextColor="Black"
+                        Background="White"
+                        BorderWidth="1"
+                        BorderColor="Black"
+            Command="{Binding OpenPageCommand}"
+            CommandParameter="DietaryPreferencesPage"/>
 
-                    <!-- Single Menu Row -->
-                    <Grid Padding="20,15" ColumnDefinitions="*,Auto">
-                        <Label Text="Dietary Preferences"
-                               FontSize="16"
-                               TextColor="#222"/>
-                        <Image Source="arrow_right.png" HeightRequest="20"/>
-                    </Grid>
+                <Button Text="Health Goals"
+                        TextColor="Black"
+                        Background="white"
+                        BorderWidth="1"
+                        BorderColor="Black"
+            Command="{Binding OpenPageCommand}"
+            CommandParameter="HealthGoalsPage"/>
 
-                    <BoxView HeightRequest="1" Color="#EFEFEF"/>
+                <Button Text="Allergies and Restrictions"
+                        TextColor="Black"
+                        Background="White"
+            Command="{Binding OpenPageCommand}"
+            CommandParameter="AllergiesPage"/>
 
-                    <Grid Padding="20,15" ColumnDefinitions="*,Auto">
-                        <Label Text="Health Goals"
-                               FontSize="16"
-                               TextColor="#222"/>
-                        <Image Source="arrow_right.png" HeightRequest="20"/>
-                    </Grid>
+                <Button Text="Account Settings"
+                        TextColor="Black"
+                        Background="White"
+            Command="{Binding OpenPageCommand}"
+            CommandParameter="AccountSettingsPage"/>
 
-                    <BoxView HeightRequest="1" Color="#EFEFEF"/>
+                <Button Text="Help and Support"
+                        Background="White"
+                        TextColor="Black"
+            Command="{Binding OpenPageCommand}"
+            CommandParameter="HelpSupportPage"/>
 
-                    <Grid Padding="20,15" ColumnDefinitions="*,Auto">
-                        <Label Text="Allergies and Restrictions"
-                               FontSize="16"
-                               TextColor="#222"/>
-                        <Image Source="arrow_right.png" HeightRequest="20"/>
-                    </Grid>
-
-                    <BoxView HeightRequest="1" Color="#EFEFEF"/>
-
-                    <Grid Padding="20,15" ColumnDefinitions="*,Auto">
-                        <Label Text="Account Settings"
-                               FontSize="16"
-                               TextColor="#222"/>
-                        <Image Source="arrow_right.png" HeightRequest="20"/>
-                    </Grid>
-
-                    <BoxView HeightRequest="1" Color="#EFEFEF"/>
-
-                    <Grid Padding="20,15" ColumnDefinitions="*,Auto">
-                        <Label Text="Help and Support"
-                               FontSize="16"
-                               TextColor="#222"/>
-                        <Image Source="arrow_right.png" HeightRequest="20"/>
-                    </Grid>
-
-                </VerticalStackLayout>
-            </Border>
+            </VerticalStackLayout>
 
         </VerticalStackLayout>
     </ScrollView>

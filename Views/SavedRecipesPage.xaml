@@ -40,6 +40,10 @@
                 Padding="0"
                 Shadow="2">
 
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRecipeTapped" />
+                </Border.GestureRecognizers>
+
                 <VerticalStackLayout>
 
                     <!-- Placeholder Image -->

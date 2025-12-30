@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NutriAI.Views.AllergiesPage"
+             Title="AllergiesPage">
+    <VerticalStackLayout Padding="20">
+        <Label Text="Allergies" FontSize="20" />
+        <Editor Text="{Binding Allergies}" AutoSize="TextChanges" />
+        <Button Text="Save" Command="{Binding SaveCommand}" />
+    </VerticalStackLayout>
+</ContentPage>

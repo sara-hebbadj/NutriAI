@@ -63,9 +63,33 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
 	</ItemGroup>
+
 	<ItemGroup>
+	  <Compile Update="Views\DietaryPreferencesPage.xaml.cs">
+	    <DependentUpon>DietaryPreferencesPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\HealthGoalsPage.xaml.cs">
+	    <DependentUpon>HealthGoalsPage.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<MauiXaml Update="Views\AccountSettingsPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\AllergiesPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\HelpSupportPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="Views\HomePage.xaml">
 			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\DietaryPreferencesPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\HealthGoalsPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Views\ProfilePage.xaml">
 			<Generator>MSBuild:Compile</Generator>
