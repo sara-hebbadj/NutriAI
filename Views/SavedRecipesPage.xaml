@@ -3,145 +3,149 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="NutriAI.Views.SavedRecipesPage"
-    BackgroundColor="#FAFAFA">
+    BackgroundColor="{DynamicResource PageBackground}">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="25">
+    <!-- ROOT GRID -->
+    <Grid RowDefinitions="Auto,*,Auto">
 
-            <!-- HEADER -->
-            <Grid ColumnDefinitions="*,Auto" Padding="0,10,0,0">
-                <HorizontalStackLayout Spacing="10">
-                    <Image Source="apple_logo.png" HeightRequest="30"/>
-                    <Label Text="NutriAI"
-                           FontSize="26"
-                           FontAttributes="Bold"
-                           TextColor="#2FAF4A"/>
-                </HorizontalStackLayout>
+        <!-- ================= HEADER (CONSISTENT ACROSS APP) ================= -->
+        <Grid Grid.Row="0"
+              Padding="20,20,20,10"
+              ColumnDefinitions="*,Auto">
 
-                <HorizontalStackLayout Grid.Column="1" Spacing="15">
-                    <Image Source="search_icon.png" HeightRequest="22"/>
-                    <Image Source="bell_icon.png" HeightRequest="22"/>
-                </HorizontalStackLayout>
-            </Grid>
-
-
-            <!-- PAGE TITLE -->
-            <Label Text="Saved Recipes"
-                   FontSize="28"
+            <Label Text="NutriAI"
+                   FontSize="{StaticResource TitleFontSize}"
                    FontAttributes="Bold"
-                   TextColor="#222"/>
+                   TextColor="{DynamicResource AccentGreen}"
+                   SemanticProperties.HeadingLevel="Level1"/>
+        </Grid>
 
-            <!-- SINGLE RECIPE CARD -->
+        <!-- FONT SIZE CONTROLS -->
             <Border
-                Stroke="#E5E5E5"
-                StrokeThickness="1"
-                BackgroundColor="White"
-                StrokeShape="RoundRectangle 20"
+                BackgroundColor="{DynamicResource PageBackground}"
+                Stroke="{DynamicResource PageBackground}"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 16"
                 Padding="0"
-                Shadow="2">
+                HorizontalOptions="End"
+                SemanticProperties.Description="Text size controls">
 
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnRecipeTapped" />
-                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="1">
 
-                <VerticalStackLayout>
+                    <Button
+                        Text="A"
+                        Clicked="OnSmallFont"
+                        BackgroundColor="{DynamicResource PageBackground}"
+                        TextColor="{DynamicResource AccentGreen}"
+                        CornerRadius="10"
+                        FontSize="14"
+                        SemanticProperties.Hint="Set small text size"/>
 
-                    <!-- Placeholder Image -->
-                    <Border BackgroundColor="#EDEDED"
-                            HeightRequest="180"
-                            StrokeShape="RoundRectangle 20"
-                            Margin="0,0,0,0"/>
+                    <Button
+                        Text="A"
+                        Clicked="OnMediumFont"
+                        BackgroundColor="{DynamicResource PageBackground}"
+                        TextColor="{DynamicResource AccentGreen}"
+                        CornerRadius="10"
+                        FontSize="18"
+                        SemanticProperties.Hint="Set medium text size"/>
 
-                    <VerticalStackLayout Padding="20" Spacing="12">
+                    <Button
+                        Text="A"
+                        Clicked="OnLargeFont"
+                        BackgroundColor="{DynamicResource PageBackground}"
+                        TextColor="{DynamicResource AccentGreen}"
+                        CornerRadius="10"
+                        FontSize="20"
+                        SemanticProperties.Hint="Set large text size"/>
 
-                        <!-- Title + Calories -->
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Protein Smoothie Bowl"
-                                   FontSize="20"
-                                   FontAttributes="Bold"
-                                   TextColor="#222"/>
-
-                            <HorizontalStackLayout Grid.Column="1" Spacing="5">
-                                <Image Source="flame_icon.png" HeightRequest="18"/>
-                                <Label Text="350 cal"
-                                       FontSize="14"
-                                       TextColor="#444"/>
-                            </HorizontalStackLayout>
-                        </Grid>
-
-                        <!-- Time -->
-                        <HorizontalStackLayout Spacing="6">
-                            <Image Source="clock_icon.png" HeightRequest="16"/>
-                            <Label Text="5 min"
-                                   FontSize="14"
-                                   TextColor="#444"/>
-                        </HorizontalStackLayout>
-
-                        <!-- Nutrition tags -->
-                        <HorizontalStackLayout Spacing="10">
-
-                            <Border BackgroundColor="#D7EDDA"
-                                    StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 10"
-                                    Padding="8,4">
-                                <Label Text="Protein: 25g"
-                                       FontSize="13"
-                                       TextColor="#234B2A"/>
-                            </Border>
-
-                            <Border BackgroundColor="#D7EDDA"
-                                    StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 10"
-                                    Padding="8,4">
-                                <Label Text="Carbs: 40g"
-                                       FontSize="13"
-                                       TextColor="#234B2A"/>
-                            </Border>
-
-                            <Border BackgroundColor="#D7EDDA"
-                                    StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 10"
-                                    Padding="8,4">
-                                <Label Text="Fat: 8g"
-                                       FontSize="13"
-                                       TextColor="#234B2A"/>
-                            </Border>
-
-                        </HorizontalStackLayout>
-
-                        <!-- Description -->
-                        <Label Text="Quick and nutritious breakfast with high protein content."
-                               TextColor="#555"
-                               FontSize="14"/>
-
-                        <!-- Saved + View -->
-                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="0,10,0,0">
-
-                            <HorizontalStackLayout Spacing="4">
-                                <Image Source="heart_filled.png"
-                                       HeightRequest="18"/>
-                                <Label Text="Saved"
-                                       TextColor="#D64545"
-                                       FontSize="14"/>
-                            </HorizontalStackLayout>
-
-                            <HorizontalStackLayout Grid.Column="2" Spacing="4">
-                                <Image Source="view_icon.png"
-                                       HeightRequest="18"/>
-                                <Label Text="View"
-                                       TextColor="#444"
-                                       FontAttributes="Bold"
-                                       FontSize="14"/>
-                            </HorizontalStackLayout>
-
-                        </Grid>
-
-                    </VerticalStackLayout>
-
-                </VerticalStackLayout>
+                </HorizontalStackLayout>
             </Border>
+      
 
-        </VerticalStackLayout>
-    </ScrollView>
+        <!-- ================= SCROLLABLE CONTENT ================= -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20" Spacing="20">
 
+                <!-- PAGE TITLE -->
+                <Label Text="Saved Recipes"
+                       FontSize="{DynamicResource TitleFontSize}"
+                       FontAttributes="Bold"
+                       TextColor="{DynamicResource PrimaryTextColor}"/>
+
+                <!-- SAVED RECIPES LIST -->
+                <CollectionView
+                    ItemsSource="{Binding SavedRecipes}"
+                    SelectionMode="Single"
+                    SelectionChanged="OnRecipeSelected">
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Stroke="{DynamicResource DividerColor}"
+                                StrokeThickness="1"
+                                BackgroundColor="{DynamicResource CardBackground}"
+                                StrokeShape="RoundRectangle 20"
+                                Margin="0,0,0,20">
+
+                                <VerticalStackLayout>
+
+                                    <!-- IMAGE PLACEHOLDER -->
+                                    <Border
+                                        BackgroundColor="{DynamicResource DividerColor}"
+                                        HeightRequest="160"
+                                        StrokeShape="RoundRectangle 20"/>
+
+                                    <VerticalStackLayout Padding="16" Spacing="10">
+
+                                        <!-- TITLE + CALORIES -->
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <Label
+                                                Text="{Binding Title}"
+                                                FontSize="{DynamicResource BodyFontSize}"
+                                                FontAttributes="Bold"
+                                                TextColor="{DynamicResource PrimaryTextColor}"/>
+
+                                            <Label
+                                                Grid.Column="1"
+                                                Text="{Binding Calories, StringFormat='🔥 {0} cal'}"
+                                                FontSize="{DynamicResource BodyFontSize}"
+                                                TextColor="{DynamicResource SecondaryTextColor}"/>
+                                        </Grid>
+
+                                        <!-- TIME -->
+                                        <Label
+                                            Text="{Binding CookingTimeMinutes, StringFormat='⏱ {0} min'}"
+                                            FontSize="{DynamicResource BodyFontSize}"
+                                            TextColor="{DynamicResource SecondaryTextColor}"/>
+
+                                        <!-- MACROS -->
+                                        <HorizontalStackLayout Spacing="10">
+                                            <Label
+                                                Text="{Binding ProteinGrams, StringFormat='Protein {0}g'}"
+                                                FontSize="{DynamicResource BodyFontSize}"
+                                                TextColor="{DynamicResource AccentGreen}"/>
+                                            <Label
+                                                Text="{Binding CarbsGrams, StringFormat='Carbs {0}g'}"
+                                                FontSize="{DynamicResource BodyFontSize}"
+                                                TextColor="{DynamicResource AccentGreen}"/>
+                                            <Label
+                                                Text="{Binding FatGrams, StringFormat='Fat {0}g'}"
+                                                FontSize="{DynamicResource BodyFontSize}"
+                                                TextColor="{DynamicResource AccentGreen}"/>
+                                        </HorizontalStackLayout>
+
+                                    </VerticalStackLayout>
+
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
 </ContentPage>

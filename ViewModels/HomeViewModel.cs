@@ -1,24 +1,34 @@
-﻿using NutriAI.Models;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using NutriAI.Models;
 
 namespace NutriAI.ViewModels;
 
-public class HomeViewModel : BaseViewModel
+public class HomeViewModel
 {
-    public ObservableCollection<string> Categories { get; set; }
-    public ObservableCollection<Recipe> Recommended { get; set; }
+    public ObservableCollection<Recipe> Recipes { get; }
 
     public HomeViewModel()
     {
-        Categories = new ObservableCollection<string>
+        Recipes = new ObservableCollection<Recipe>
         {
-            "Breakfast", "Lunch", "Dinner", "Snacks", "Vegan"
-        };
-
-        Recommended = new ObservableCollection<Recipe>
-        {
-            new Recipe { Title = "Avocado Toast", ImageUrl="recipe1.png", Duration="10 min", Difficulty="Easy" },
-            new Recipe { Title = "Pasta Alfredo", ImageUrl="recipe2.png", Duration="25 min", Difficulty="Medium" }
+            new Recipe
+            {
+                Title = "Grilled Chicken with Quinoa",
+                Calories = 420,
+                CookingTimeMinutes = 25,
+                ProteinGrams = 35,
+                CarbsGrams = 45,
+                FatGrams = 12
+            },
+            new Recipe
+            {
+                Title = "Avocado Egg Toast",
+                Calories = 320,
+                CookingTimeMinutes = 10,
+                ProteinGrams = 14,
+                CarbsGrams = 30,
+                FatGrams = 18
+            }
         };
     }
 }

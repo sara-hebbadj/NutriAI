@@ -3,33 +3,76 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="NutriAI.Views.ProfilePage"
-    BackgroundColor="#FAFAFA">
+    BackgroundColor="{DynamicResource PageBackground}">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="25">
+    <!-- ROOT GRID -->
+    <Grid RowDefinitions="Auto,*,Auto">
 
-            <!-- HEADER -->
-            <Grid ColumnDefinitions="*,Auto" Padding="0,10,0,0">
-                <HorizontalStackLayout Spacing="10">
-                    <Image Source="apple_logo.png" HeightRequest="30"/>
-                    <Label Text="NutriAI"
-                           FontSize="26"
-                           FontAttributes="Bold"
-                           TextColor="#2FAF4A"/>
+        <!-- ================= HEADER (CONSISTENT ACROSS APP) ================= -->
+        <Grid Grid.Row="0"
+              Padding="20,20,20,10"
+              ColumnDefinitions="*,Auto">
+
+            <Label Text="NutriAI"
+                   FontSize="{StaticResource TitleFontSize}"
+                   FontAttributes="Bold"
+                   TextColor="{DynamicResource AccentGreen}"
+                   SemanticProperties.HeadingLevel="Level1"/>
+        </Grid>
+
+        <!-- FONT SIZE CONTROLS -->
+            <Border
+                BackgroundColor="{DynamicResource PageBackground}"
+                Stroke="{DynamicResource PageBackground}"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 16"
+                Padding="0"
+                HorizontalOptions="End"
+                SemanticProperties.Description="Text size controls">
+
+                <HorizontalStackLayout Spacing="1">
+
+                    <Button
+                        Text="A"
+                        Clicked="OnSmallFont"
+                        BackgroundColor="{DynamicResource PageBackground}"
+                        TextColor="{DynamicResource AccentGreen}"
+                        CornerRadius="10"
+                        FontSize="14"
+                        SemanticProperties.Hint="Set small text size"/>
+
+                    <Button
+                        Text="A"
+                        Clicked="OnMediumFont"
+                        BackgroundColor="{DynamicResource PageBackground}"
+                        TextColor="{DynamicResource AccentGreen}"
+                        CornerRadius="10"
+                        FontSize="18"
+                        SemanticProperties.Hint="Set medium text size"/>
+
+                    <Button
+                        Text="A"
+                        Clicked="OnLargeFont"
+                        BackgroundColor="{DynamicResource PageBackground}"
+                        TextColor="{DynamicResource AccentGreen}"
+                        CornerRadius="10"
+                        FontSize="20"
+                        SemanticProperties.Hint="Set large text size"/>
+
                 </HorizontalStackLayout>
+            </Border>
+        
 
-                <HorizontalStackLayout Grid.Column="1" Spacing="15">
-                    <Image Source="search_icon.png" HeightRequest="22"/>
-                    <Image Source="bell_icon.png" HeightRequest="22"/>
-                </HorizontalStackLayout>
-            </Grid>
+        <!-- ================= SCROLLABLE CONTENT ================= -->
+    <ScrollView Grid.Row="1">
+        <VerticalStackLayout Padding="20" Spacing="24">
 
 
             <!-- USER INFO SECTION -->
             <HorizontalStackLayout Spacing="15">
 
                 <!-- Profile Icon -->
-                <Border BackgroundColor="#D7EDDA"
+                <Border BackgroundColor="{DynamicResource ChipBackground}"
                         HeightRequest="75"
                         WidthRequest="75"
                         StrokeShape="RoundRectangle 50"
@@ -45,13 +88,13 @@
                 <VerticalStackLayout Spacing="4"
                                      VerticalOptions="Center">
                     <Label Text="Sara Hebbadj"
-                           FontSize="22"
+                           FontSize="{DynamicResource TitleFontSize}"
                            FontAttributes="Bold"
-                           TextColor="#222"/>
+                           TextColor="{DynamicResource PrimaryTextColor}"/>
 
                     <Label Text="Weight Loss Goal • 1,800 cal/day"
-                           FontSize="14"
-                           TextColor="#555"/>
+                           FontSize="{DynamicResource BodyFontSize}"
+                           TextColor="{DynamicResource SecondaryTextColor}"/>
                 </VerticalStackLayout>
 
             </HorizontalStackLayout>
@@ -61,54 +104,54 @@
             <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
 
                 <!-- Recipes Saved -->
-                <Border BackgroundColor="#D7EDDA"
+                <Border BackgroundColor="{DynamicResource ChipBackground}"
                         Padding="15,10"
                         StrokeShape="RoundRectangle 18">
                     <VerticalStackLayout HorizontalOptions="Center">
                         <Label Text="12"
-                               FontSize="22"
+                               FontSize="{DynamicResource TitleFontSize}"
                                FontAttributes="Bold"
-                               TextColor="#234B2A"
+                               TextColor="{DynamicResource AccentGreen}"
                                HorizontalOptions="Center"/>
                         <Label Text="Recipes Saved"
-                               FontSize="13"
-                               TextColor="#234B2A"
+                               FontSize="{DynamicResource BodyFontSize}"
+                               TextColor="{DynamicResource AccentGreen}"
                                HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                 </Border>
 
                 <!-- Meals Logged -->
-                <Border BackgroundColor="#D7EDDA"
+                <Border BackgroundColor="{DynamicResource ChipBackground}"
                         Padding="15,10"
                         StrokeShape="RoundRectangle 18"
                         Grid.Column="1">
                     <VerticalStackLayout HorizontalOptions="Center">
                         <Label Text="28"
-                               FontSize="22"
+                               FontSize="{DynamicResource TitleFontSize}"
                                FontAttributes="Bold"
-                               TextColor="#234B2A"
+                               TextColor="{DynamicResource AccentGreen}"
                                HorizontalOptions="Center"/>
                         <Label Text="Meals Logged"
-                               FontSize="13"
-                               TextColor="#234B2A"
+                               FontSize="{DynamicResource BodyFontSize}"
+                               TextColor="{DynamicResource AccentGreen}"
                                HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                 </Border>
 
                 <!-- Weight Lost -->
-                <Border BackgroundColor="#D7EDDA"
+                <Border BackgroundColor="{DynamicResource ChipBackground}"
                         Padding="15,10"
                         StrokeShape="RoundRectangle 18"
                         Grid.Column="2">
                     <VerticalStackLayout HorizontalOptions="Center">
                         <Label Text="5.2"
-                               FontSize="22"
+                               FontSize="{DynamicResource TitleFontSize}"
                                FontAttributes="Bold"
-                               TextColor="#234B2A"
+                               TextColor="{DynamicResource AccentGreen}"
                                HorizontalOptions="Center"/>
                         <Label Text="kg Lost"
-                               FontSize="13"
-                               TextColor="#234B2A"
+                               FontSize="{DynamicResource BodyFontSize}"
+                               TextColor="{DynamicResource AccentGreen}"
                                HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                 </Border>
@@ -120,42 +163,54 @@
             <VerticalStackLayout>
 
                 <Button Text="Dietary Preferences"
-                        TextColor="Black"
-                        Background="White"
-                        BorderWidth="1"
-                        BorderColor="Black"
+                        FontSize="{DynamicResource BodyFontSize}"
+                        TextColor="{DynamicResource PrimaryTextColor}"
+                        Background="{DynamicResource CardBackground}"
+
+                        BorderColor="{DynamicResource SecondaryTextColor}"
             Command="{Binding OpenPageCommand}"
             CommandParameter="DietaryPreferencesPage"/>
 
                 <Button Text="Health Goals"
-                        TextColor="Black"
-                        Background="white"
-                        BorderWidth="1"
-                        BorderColor="Black"
+                        FontSize="{DynamicResource BodyFontSize}"
+                        TextColor="{DynamicResource PrimaryTextColor}"
+                        Background="{DynamicResource CardBackground}"
+
+                        BorderColor="{DynamicResource SecondaryTextColor}"
             Command="{Binding OpenPageCommand}"
             CommandParameter="HealthGoalsPage"/>
 
                 <Button Text="Allergies and Restrictions"
-                        TextColor="Black"
-                        Background="White"
+                        FontSize="{DynamicResource BodyFontSize}"
+                        TextColor="{DynamicResource PrimaryTextColor}"
+                        Background="{DynamicResource CardBackground}"
+
+                        BorderColor="{DynamicResource SecondaryTextColor}"
             Command="{Binding OpenPageCommand}"
             CommandParameter="AllergiesPage"/>
 
                 <Button Text="Account Settings"
-                        TextColor="Black"
-                        Background="White"
+                        FontSize="{DynamicResource BodyFontSize}"
+                        TextColor="{DynamicResource PrimaryTextColor}"
+                        Background="{DynamicResource CardBackground}"
+
+                        BorderColor="{DynamicResource SecondaryTextColor}"
             Command="{Binding OpenPageCommand}"
             CommandParameter="AccountSettingsPage"/>
 
                 <Button Text="Help and Support"
-                        Background="White"
-                        TextColor="Black"
+                        FontSize="{DynamicResource BodyFontSize}"
+                        TextColor="{DynamicResource PrimaryTextColor}"
+                        Background="{DynamicResource CardBackground}"
+
+                        BorderColor="{DynamicResource SecondaryTextColor}"
             Command="{Binding OpenPageCommand}"
             CommandParameter="HelpSupportPage"/>
 
             </VerticalStackLayout>
 
-        </VerticalStackLayout>
-    </ScrollView>
+            </VerticalStackLayout>
+        </ScrollView>
 
+    </Grid>
 </ContentPage>

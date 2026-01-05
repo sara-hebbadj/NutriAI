@@ -3,246 +3,276 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="NutriAI.Views.HomePage"
-    BackgroundColor="white">
+    BackgroundColor="{DynamicResource PageBackground}">
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="20" Padding="20">
+    <!-- ROOT GRID -->
+    <Grid RowDefinitions="Auto,*,Auto">
 
-            <!-- HEADER -->
-            <Grid ColumnDefinitions="*,Auto" Padding="0,10,0,0">
-                <HorizontalStackLayout Spacing="10">
-                    <Image Source="apple_logo.png" HeightRequest="30"/>
-                    <Label Text="NutriAI"
-                           FontSize="26"
-                           FontAttributes="Bold"
-                           TextColor="#2FAF4A" />
-                </HorizontalStackLayout>
+        <!-- ================= HEADER (CONSISTENT ACROSS APP) ================= -->
+        <Grid Grid.Row="0"
+              Padding="20,20,20,10"
+              ColumnDefinitions="*,Auto">
 
-                <HorizontalStackLayout Grid.Column="1" Spacing="15">
-                    <Image Source="search_icon.png" HeightRequest="22"/>
-                    <Image Source="bell_icon.png" HeightRequest="22"/>
-                </HorizontalStackLayout>
-            </Grid>
+            <Label Text="NutriAI"
+                   FontSize="{StaticResource TitleFontSize}"
+                   FontAttributes="Bold"
+                   TextColor="{DynamicResource AccentGreen}"
+                   SemanticProperties.HeadingLevel="Level1"/>
 
+        </Grid>
+        <!-- FONT SIZE CONTROLS -->
+        <Border
+         BackgroundColor="{DynamicResource PageBackground}"
+         Stroke="{DynamicResource PageBackground}"
+         StrokeThickness="0"
+         StrokeShape="RoundRectangle 16"
+         Padding="0"
+         HorizontalOptions="End"
+         SemanticProperties.Description="Text size controls">
 
-            <!-- SEARCH BAR -->
-            <Border StrokeThickness="1"
-                    Background="#E0E0E0"
-                    StrokeShape="RoundRectangle 15"
-                    HeightRequest="55">
+            <HorizontalStackLayout Spacing="1">
 
-                <Grid ColumnDefinitions="*,Auto" Padding="15,0">
+                <Button
+                 Text="A"
+                 Clicked="OnSmallFont"
+                 BackgroundColor="{DynamicResource PageBackground}"
+                 TextColor="{DynamicResource AccentGreen}"
+                 CornerRadius="10"
+                 FontSize="14"
+                 SemanticProperties.Hint="Set small text size"/>
 
-                    <Entry Placeholder="Ask for recipes..."
-                           PlaceholderColor="Black"
-                           TextColor="Black"
-                           FontSize="16"
-                           FontAttributes="Italic"
-                           BackgroundColor="Transparent"/>
-                    <Border Grid.Column="1"
-                            Background="#2FAF4A"
-                            StrokeThickness="0"
-                            StrokeShape="RoundRectangle 10"
-                            WidthRequest="45"
-                            HeightRequest="35"
-                            VerticalOptions="Center">
+                <Button
+                 Text="A"
+                 Clicked="OnMediumFont"
+                 BackgroundColor="{DynamicResource PageBackground}"
+                 TextColor="{DynamicResource AccentGreen}"
+                 CornerRadius="10"
+                 FontSize="18"
+                 SemanticProperties.Hint="Set medium text size"/>
 
-                        <Image Source="search_white.png"
-                               HeightRequest="20"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-                    </Border>
-                </Grid>
-            </Border>
+                <Button
+                 Text="A"
+                 Clicked="OnLargeFont"
+                 BackgroundColor="{DynamicResource PageBackground}"
+                 TextColor="{DynamicResource AccentGreen}"
+                 CornerRadius="10"
+                 FontSize="20"
+                 SemanticProperties.Hint="Set large text size"/>
 
+            </HorizontalStackLayout>
+        </Border>
 
-            <!-- FILTER CHIPS + FLYOUTS -->
-            <VerticalStackLayout Spacing="10">
+        <!-- ================= SCROLLABLE CONTENT ================= -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="14">
 
-                <!-- CHIP ROW -->
-                <HorizontalStackLayout Spacing="12">
+                <!-- SEARCH BAR -->
+                <Border Margin="20,0"
+                        BackgroundColor="{DynamicResource DividerColor}"
+                        StrokeShape="RoundRectangle 15"
+                        HeightRequest="55">
+                    <Grid ColumnDefinitions="*,Auto" Padding="15,0">
 
-                    <!-- MEAL TYPE -->
-                    <Border x:Name="MealTypeChip"
-                Background="White"
-                Stroke="#E0E0E0"
-                StrokeThickness="1"
-                StrokeShape="RoundRectangle 22"
-                Padding="15,10">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnMealTypeTapped"/>
-                        </Border.GestureRecognizers>
-                        <HorizontalStackLayout Spacing="6">
-                            <Label x:Name="MealTypeLabel" Text="Meal Type" FontSize="15"/>
-                            <Image Source="chevron_down.png" HeightRequest="14"/>
-                        </HorizontalStackLayout>
-                    </Border>
+                        <Entry Placeholder="Ask for recipes..."
+                               TextColor="{DynamicResource PrimaryTextColor}"
+                               PlaceholderColor="{DynamicResource SecondaryTextColor}"
+                               SemanticProperties.Description="Search recipes input"/>
 
-                    <!-- DIET -->
-                    <Border x:Name="DietChip"
-                Background="White"
-                Stroke="#E0E0E0"
-                StrokeThickness="1"
-                StrokeShape="RoundRectangle 22"
-                Padding="15,10">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnDietTapped"/>
-                        </Border.GestureRecognizers>
-                        <HorizontalStackLayout Spacing="6">
-                            <Label x:Name="DietLabel" Text="Diet" FontSize="15"/>
-                            <Image Source="chevron_down.png" HeightRequest="14"/>
-                        </HorizontalStackLayout>
-                    </Border>
-
-                    <!-- CUISINE -->
-                    <Border x:Name="CuisineChip"
-                Background="White"
-                Stroke="#E0E0E0"
-                StrokeThickness="1"
-                StrokeShape="RoundRectangle 22"
-                Padding="15,10">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnCuisineTapped"/>
-                        </Border.GestureRecognizers>
-                        <HorizontalStackLayout Spacing="6">
-                            <Label x:Name="CuisineLabel" Text="Cuisine" FontSize="15"/>
-                            <Image Source="chevron_down.png" HeightRequest="14"/>
-                        </HorizontalStackLayout>
-                    </Border>
-
-                </HorizontalStackLayout>
-
-                <!-- MEAL TYPE FLYOUT -->
-                <Border x:Name="MealTypeFlyout"
-            IsVisible="False"
-            Background="White"
-            Stroke="#E0E0E0"
-            StrokeThickness="1"
-            StrokeShape="RoundRectangle 16"
-            Padding="15">
-                    <VerticalStackLayout Spacing="12">
-                        <Label Text="Breakfast" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
-                        <Label Text="Lunch" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
-                        <Label Text="Dinner" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
-                        <Label Text="Snack" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
-                    </VerticalStackLayout>
+                        <Border Grid.Column="1"
+                                BackgroundColor="{DynamicResource AccentGreen}"
+                                StrokeShape="RoundRectangle 10"
+                                WidthRequest="45"
+                                HeightRequest="35">
+                            <Image Source="search_white.png"
+                                   SemanticProperties.Description="Search button"/>
+                        </Border>
+                    </Grid>
                 </Border>
 
-                <!-- DIET FLYOUT -->
-                <Border x:Name="DietFlyout"
-            IsVisible="False"
-            Background="White"
-            Stroke="#E0E0E0"
-            StrokeThickness="1"
-            StrokeShape="RoundRectangle 16"
-            Padding="15">
-                    <VerticalStackLayout Spacing="12">
-                        <Label Text="Balanced" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
-                        <Label Text="Keto" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
-                        <Label Text="Vegan" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
-                        <Label Text="Vegetarian" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
-                    </VerticalStackLayout>
-                </Border>
+                <!-- FILTER CHIPS + FLYOUTS -->
+                <VerticalStackLayout Padding="20,0" Spacing="10">
 
-                <!-- CUISINE FLYOUT -->
-                <Border x:Name="CuisineFlyout"
-            IsVisible="False"
-            Background="White"
-            Stroke="#E0E0E0"
-            StrokeThickness="1"
-            StrokeShape="RoundRectangle 16"
-            Padding="15">
-                    <VerticalStackLayout Spacing="12">
-                        <Label Text="Italian" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
-                        <Label Text="Asian" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
-                        <Label Text="Middle Eastern" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
-                        <Label Text="American" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
-                    </VerticalStackLayout>
-                </Border>
+                    <HorizontalStackLayout Spacing="12">
+
+                        <!-- MEAL TYPE -->
+                        <Border x:Name="MealTypeChip"
+                        Background="{DynamicResource ChipBackground}"
+                        Stroke="{DynamicResource DividerColor}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 22"
+                        Padding="15,10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnMealTypeTapped"/>
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="6">
+                                <Label x:Name="MealTypeLabel" Text="Meal Type" FontSize="15"/>
+                                <Image Source="chevron_down.png" HeightRequest="14"/>
+                            </HorizontalStackLayout>
+                        </Border>
+
+                        <!-- DIET -->
+                        <Border x:Name="DietChip"
+                        Background="{DynamicResource ChipBackground}"
+                        Stroke="{DynamicResource DividerColor}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 22"
+                        Padding="15,10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDietTapped"/>
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="6">
+                                <Label x:Name="DietLabel" Text="Diet" FontSize="15"/>
+                                <Image Source="chevron_down.png" HeightRequest="14"/>
+                            </HorizontalStackLayout>
+                        </Border>
+
+                        <!-- CUISINE -->
+                        <Border x:Name="CuisineChip"
+                        Background="{DynamicResource ChipBackground}"
+                        Stroke="{DynamicResource DividerColor}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 22"
+                        Padding="15,10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCuisineTapped"/>
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="6">
+                                <Label x:Name="CuisineLabel" Text="Cuisine" FontSize="15"/>
+                                <Image Source="chevron_down.png" HeightRequest="14"/>
+                            </HorizontalStackLayout>
+                        </Border>
+
+                    </HorizontalStackLayout>
+
+                    <!-- MEAL TYPE FLYOUT -->
+                    <Border x:Name="MealTypeFlyout"
+                    IsVisible="False"
+                    Background="{DynamicResource ChipBackground}"
+                    Stroke="{DynamicResource DividerColor}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="15">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Breakfast" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
+                            <Label Text="Lunch" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
+                            <Label Text="Dinner" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
+                            <Label Text="Snack" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- DIET FLYOUT -->
+                    <Border x:Name="DietFlyout"
+                    IsVisible="False"
+                    Background="{DynamicResource ChipBackground}"
+                    Stroke="{DynamicResource DividerColor}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="15">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Balanced" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
+                            <Label Text="Keto" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
+                            <Label Text="Vegan" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
+                            <Label Text="Vegetarian" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- CUISINE FLYOUT -->
+                    <Border x:Name="CuisineFlyout"
+                    IsVisible="False"
+                    Background="{DynamicResource ChipBackground}"
+                    Stroke="{DynamicResource DividerColor}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="15">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Italian" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
+                            <Label Text="Asian" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
+                            <Label Text="Middle Eastern" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
+                            <Label Text="American" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+
+
+                <!-- SECTION TITLE -->
+                <Label Text="Recommended For You"
+                       FontSize="{DynamicResource TitleFontSize}"
+                       FontAttributes="Bold"
+                       TextColor="{DynamicResource PrimaryTextColor}"
+                       Margin="20,10,20,0"/>
+
+                <!-- RECIPE LIST (SCROLLS & TAPS CORRECTLY) -->
+                <CollectionView ItemsSource="{Binding Recipes}"
+                                SelectionMode="Single"
+                                SelectionChanged="OnRecipeSelected"
+                                Margin="20,0">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Stroke="{DynamicResource DividerColor}"
+                                StrokeThickness="1"
+                                BackgroundColor="{DynamicResource CardBackground}"
+                                StrokeShape="RoundRectangle 20"
+                                Margin="0,0,0,20">
+
+                                <VerticalStackLayout>
+
+                                    <!-- IMAGE PLACEHOLDER -->
+                                    <Border
+                                        BackgroundColor="{DynamicResource DividerColor}"
+                                        HeightRequest="160"
+                                        StrokeShape="RoundRectangle 20"/>
+
+                                    <VerticalStackLayout Padding="16" Spacing="10">
+
+                                        <!-- TITLE + CALORIES -->
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <Label
+                                                Text="{Binding Title}"
+                                                FontSize="{DynamicResource BodyFontSize}"
+                                                FontAttributes="Bold"
+                                                TextColor="{DynamicResource PrimaryTextColor}"/>
+
+                                            <Label
+                                                Grid.Column="1"
+                                                Text="{Binding Calories, StringFormat='🔥 {0} cal'}"
+                                                FontSize="{DynamicResource BodyFontSize}"
+                                                TextColor="{DynamicResource SecondaryTextColor}"/>
+                                        </Grid>
+
+                                        <!-- TIME -->
+                                        <Label
+                                            Text="{Binding CookingTimeMinutes, StringFormat='⏱ {0} min'}"
+                                            FontSize="{DynamicResource BodyFontSize}"
+                                            TextColor="{DynamicResource SecondaryTextColor}"/>
+
+                                        <!-- MACROS -->
+                                        <HorizontalStackLayout Spacing="10">
+                                            <Label
+                                                Text="{Binding ProteinGrams, StringFormat='Protein {0}g'}"
+                                                FontSize="{DynamicResource BodyFontSize}"
+                                                TextColor="{DynamicResource AccentGreen}"/>
+                                            <Label
+                                                Text="{Binding CarbsGrams, StringFormat='Carbs {0}g'}"
+                                                FontSize="{DynamicResource BodyFontSize}"
+                                                TextColor="{DynamicResource AccentGreen}"/>
+                                            <Label
+                                                Text="{Binding FatGrams, StringFormat='Fat {0}g'}"
+                                                FontSize="{DynamicResource BodyFontSize}"
+                                                TextColor="{DynamicResource AccentGreen}"/>
+                                        </HorizontalStackLayout>
+
+                                    </VerticalStackLayout>
+
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
 
             </VerticalStackLayout>
+        </ScrollView>
 
-    
-
-
-            <!-- SECTION TITLE -->
-            <Label Text="Recommended For You"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   TextColor="Black" />
-
-
-            <!-- RECIPE CARD -->
-            <Border StrokeThickness="0"
-                    Background="White"
-                    StrokeShape="RoundRectangle 25"
-                    Margin="0,0,0,10">
-
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnRecipeTapped" />
-                </Border.GestureRecognizers>
-
-
-                <VerticalStackLayout Spacing="10">
-
-                    <!-- IMAGE placeholder -->
-                    <Border HeightRequest="180"
-                            Background="#EDEDED"
-                            StrokeThickness="0"
-                            StrokeShape="RoundRectangle 25"/>
-
-                    <VerticalStackLayout Padding="15" Spacing="8">
-
-                        <!-- Title -->
-                        <Label Text="Grilled Chicken with Quinoa"
-                               FontSize="20"
-                               FontAttributes="Bold" />
-
-                        <!-- Time + calories -->
-                        <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
-
-                            <HorizontalStackLayout Spacing="5">
-                                <Image Source="clock_icon.png" HeightRequest="16"/>
-                                <Label Text="25 min" TextColor="#707070" />
-                            </HorizontalStackLayout>
-
-                            <HorizontalStackLayout Grid.Column="2" Spacing="5">
-                                <Image Source="flame_icon.png" HeightRequest="16"/>
-                                <Label Text="420 cal"
-                                       TextColor="#707070" />
-                            </HorizontalStackLayout>
-
-                        </Grid>
-
-                        <!-- TAGS -->
-                        <HorizontalStackLayout Spacing="10">
-
-                            <Border Background="#DFF4DF"
-                                    StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 10"
-                                    Padding="10,5">
-                                <Label Text="Protein: 35g" FontSize="13" TextColor="#2FAF4A"/>
-                            </Border>
-
-                            <Border Background="#DFF4DF"
-                                    StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 10"
-                                    Padding="10,5">
-                                <Label Text="Carbs: 45g" FontSize="13" TextColor="#2FAF4A"/>
-                            </Border>
-
-                            <Border Background="#DFF4DF"
-                                    StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 10"
-                                    Padding="10,5">
-                                <Label Text="Fat: 12g" FontSize="13" TextColor="#2FAF4A"/>
-                            </Border>
-
-                        </HorizontalStackLayout>
-                    </VerticalStackLayout>
-                </VerticalStackLayout>
-            </Border>
-
-        </VerticalStackLayout>
-    </ScrollView>
+    </Grid>
 </ContentPage>

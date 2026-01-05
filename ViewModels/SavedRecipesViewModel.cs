@@ -1,14 +1,25 @@
-﻿using NutriAI.Models;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using NutriAI.Models;
 
 namespace NutriAI.ViewModels;
 
-public class SavedRecipesViewModel : BaseViewModel
+public class SavedRecipesViewModel
 {
-    public ObservableCollection<Recipe> Saved { get; set; }
+    public ObservableCollection<Recipe> SavedRecipes { get; }
 
     public SavedRecipesViewModel()
     {
-        Saved = new ObservableCollection<Recipe>();
+        SavedRecipes = new ObservableCollection<Recipe>
+        {
+            new Recipe
+            {
+                Title = "Protein Smoothie Bowl",
+                Calories = 350,
+                CookingTimeMinutes = 5,
+                ProteinGrams = 25,
+                CarbsGrams = 40,
+                FatGrams = 8
+            }
+        };
     }
 }

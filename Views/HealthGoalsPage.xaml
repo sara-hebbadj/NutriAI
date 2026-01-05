@@ -7,7 +7,7 @@
 
         <Label 
         Text="Your Health Goal"
-        FontSize="20"
+        FontSize="{StaticResource TitleFontSize}"
         Margin="0,0,0,10" />
 
         <Entry 

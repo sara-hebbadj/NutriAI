@@ -3,10 +3,164 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="NutriAI.Views.RecipeDetailsPage"
-    Title="Recipe Details">
+    Title="Recipe Details"
+    BackgroundColor="{DynamicResource PageBackground}">
 
-    <Label Text="Recipe Details Page"
-           HorizontalOptions="Center"
-           VerticalOptions="Center"
-           FontSize="24"/>
+    <!-- ROOT GRID -->
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- ================= HEADER (CONSISTENT ACROSS APP) ================= -->
+        <Grid Grid.Row="0"
+              Padding="20,20,20,10"
+              ColumnDefinitions="*,Auto">
+
+            <Label Text="NutriAI"
+                   FontSize="{StaticResource TitleFontSize}"
+                   FontAttributes="Bold"
+                   TextColor="{DynamicResource AccentGreen}"
+                   SemanticProperties.HeadingLevel="Level1"/>
+        </Grid>
+
+        <!-- FONT SIZE CONTROLS -->
+        <Border
+                BackgroundColor="{DynamicResource PageBackground}"
+                Stroke="{DynamicResource PageBackground}"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 16"
+                Padding="0"
+                HorizontalOptions="End"
+                SemanticProperties.Description="Text size controls">
+
+            <HorizontalStackLayout Spacing="1">
+
+                <Button
+                        Text="A"
+                        Clicked="OnSmallFont"
+                        BackgroundColor="{DynamicResource PageBackground}"
+                        TextColor="{DynamicResource AccentGreen}"
+                        CornerRadius="10"
+                        FontSize="14"
+                        SemanticProperties.Hint="Set small text size"/>
+
+                <Button
+                        Text="A"
+                        Clicked="OnMediumFont"
+                        BackgroundColor="{DynamicResource PageBackground}"
+                        TextColor="{DynamicResource AccentGreen}"
+                        CornerRadius="10"
+                        FontSize="18"
+                        SemanticProperties.Hint="Set medium text size"/>
+
+                <Button
+                        Text="A"
+                        Clicked="OnLargeFont"
+                        BackgroundColor="{DynamicResource PageBackground}"
+                        TextColor="{DynamicResource AccentGreen}"
+                        CornerRadius="10"
+                        FontSize="20"
+                        SemanticProperties.Hint="Set large text size"/>
+
+            </HorizontalStackLayout>
+        </Border>
+        <!-- ================= SCROLLABLE CONTENT ================= -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20" Spacing="20">
+
+                <!-- IMAGE PLACEHOLDER -->
+                <Border HeightRequest="220"
+                        BackgroundColor="{DynamicResource DividerColor}"
+                        StrokeShape="RoundRectangle 25"
+                        SemanticProperties.Description="Recipe image placeholder"/>
+
+                <!-- TITLE -->
+                <Label Text="{Binding Recipe.Title}"
+                       FontSize="{DynamicResource TitleFontSize}"
+                       FontAttributes="Bold"
+                       TextColor="{DynamicResource PrimaryTextColor}"
+                       SemanticProperties.HeadingLevel="Level1"/>
+
+                <!-- META INFO -->
+                <HorizontalStackLayout Spacing="20">
+                    <Label Text="{Binding Recipe.CookingTimeMinutes, StringFormat='⏱ {0} min'}"
+                           FontSize="{DynamicResource BodyFontSize}"
+                           TextColor="{DynamicResource SecondaryTextColor}"/>
+
+                    <Label Text="{Binding Recipe.Calories, StringFormat='🔥 {0} cal'}"
+                           FontSize="{DynamicResource BodyFontSize}"
+                           TextColor="{DynamicResource SecondaryTextColor}"/>
+                </HorizontalStackLayout>
+
+                <!-- MACROS -->
+                <HorizontalStackLayout Spacing="10">
+                    <Border BackgroundColor="{DynamicResource ChipBackground}"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="10,5">
+                        <Label Text="{Binding Recipe.ProteinGrams, StringFormat='Protein {0}g'}"
+                               TextColor="{DynamicResource AccentGreen}"/>
+                    </Border>
+
+                    <Border BackgroundColor="{DynamicResource ChipBackground}"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="10,5">
+                        <Label Text="{Binding Recipe.CarbsGrams, StringFormat='Carbs {0}g'}"
+                               TextColor="{DynamicResource AccentGreen}"/>
+                    </Border>
+
+                    <Border BackgroundColor="{DynamicResource ChipBackground}"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="10,5">
+                        <Label Text="{Binding Recipe.FatGrams, StringFormat='Fat {0}g'}"
+                               TextColor="{DynamicResource AccentGreen}"/>
+                    </Border>
+                </HorizontalStackLayout>
+
+                <!-- INGREDIENTS -->
+                <Label Text="Ingredients"
+                       FontSize="{DynamicResource TitleFontSize}"
+                       FontAttributes="Bold"
+                       TextColor="{DynamicResource PrimaryTextColor}"
+                       SemanticProperties.HeadingLevel="Level2"/>
+
+                <CollectionView ItemsSource="{Binding Recipe.Ingredients}"
+                                SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Label Text="{Binding}"
+                                   FontSize="{DynamicResource BodyFontSize}"
+                                   TextColor="{DynamicResource SecondaryTextColor}"/>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- INSTRUCTIONS -->
+                <Label Text="Instructions"
+                       FontSize="{DynamicResource TitleFontSize}"
+                       FontAttributes="Bold"
+                       TextColor="{DynamicResource PrimaryTextColor}"
+                       SemanticProperties.HeadingLevel="Level2"/>
+
+                <CollectionView ItemsSource="{Binding Recipe.Instructions}"
+                                SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Label Text="{Binding}"
+                                   FontSize="{DynamicResource BodyFontSize}"
+                                   TextColor="{DynamicResource SecondaryTextColor}"/>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- SAVE BUTTON -->
+                <Button Text="Save Recipe"
+                        BackgroundColor="{DynamicResource AccentGreen}"
+                        TextColor="White"
+                        CornerRadius="25"
+                        HeightRequest="50"
+                        SemanticProperties.Description="Save recipe button"
+                        SemanticProperties.Hint="Tap to save this recipe"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
 </ContentPage>

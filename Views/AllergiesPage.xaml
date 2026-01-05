@@ -4,7 +4,7 @@
              x:Class="NutriAI.Views.AllergiesPage"
              Title="AllergiesPage">
     <VerticalStackLayout Padding="20">
-        <Label Text="Allergies" FontSize="20" />
+        <Label Text="Allergies" FontSize="{StaticResource TitleFontSize}" />
         <Editor Text="{Binding Allergies}" AutoSize="TextChanges" />
         <Button Text="Save" Command="{Binding SaveCommand}" />
     </VerticalStackLayout>

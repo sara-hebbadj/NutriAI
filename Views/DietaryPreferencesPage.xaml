@@ -4,7 +4,7 @@
              x:Class="NutriAI.Views.DietaryPreferencesPage"
              Title="DietaryPreferencesPage">
     <VerticalStackLayout Padding="20">
-        <Label Text="Dietary Preference" FontSize="20" />
+        <Label Text="Dietary Preference" FontSize="{StaticResource TitleFontSize}" />
         <Entry Text="{Binding Preference}" />
         <Button Text="Save" Command="{Binding SaveCommand}" />
     </VerticalStackLayout>

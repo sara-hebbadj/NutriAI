@@ -4,48 +4,62 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="NutriAI.App">
 
-
     <Application.Resources>
-
         <ResourceDictionary>
 
-            <!-- COLORS -->
-            <Color x:Key="PrimaryColor">#4CAF50</Color>
-            <!-- Green -->
-            <Color x:Key="SecondaryColor">#2E7D32</Color>
-            <Color x:Key="LightGray">#F2F2F2</Color>
-            <Color x:Key="DarkText">#111111</Color>
+            <!-- ========= COLORS ========= -->
 
-            <!-- FONT SIZES -->
+            <!-- TEXT -->
+            <Color x:Key="PrimaryTextColor">#1C1C1C</Color>
+            <Color x:Key="SecondaryTextColor">#4A4A4A</Color>
+            <Color x:Key="DarkText">#1C1C1C</Color>
+
+            <!-- BRAND -->
+            <Color x:Key="AccentGreen">#134E2A</Color>
+            <Color x:Key="PrimaryColor">#134E2A</Color>
+
+            <!-- BACKGROUNDS -->
+            <Color x:Key="PageBackground">#FAFAFA</Color>
+            <Color x:Key="CardBackground">#FFFFFF</Color>
+            <Color x:Key="DividerColor">#E0E0E0</Color>
+            <Color x:Key="ChipBackground">#CDEED6</Color>
+
+            <!-- ========= FONT SCALES ========= -->
+
+            <!-- Presets -->
+            <x:Double x:Key="FontSmall">14</x:Double>
+            <x:Double x:Key="FontMedium">16</x:Double>
+            <x:Double x:Key="FontLarge">20</x:Double>
+
+            <x:Double x:Key="TitleSmall">22</x:Double>
+            <x:Double x:Key="TitleMedium">26</x:Double>
+            <x:Double x:Key="TitleLarge">30</x:Double>
+
+            <!-- ACTIVE (changed at runtime) -->
+            <x:Double x:Key="BodyFontSize">16</x:Double>
             <x:Double x:Key="TitleFontSize">26</x:Double>
-            <x:Double x:Key="SubtitleFontSize">18</x:Double>
-            <x:Double x:Key="BodyFontSize">14</x:Double>
 
-            <!-- STYLES -->
-            <Style x:Key="CategoryChip" TargetType="Button">
-                <Setter Property="BackgroundColor" Value="#ECEBFF"/>
-                <Setter Property="TextColor" Value="#4A47A3"/>
-                <Setter Property="CornerRadius" Value="20"/>
-                <Setter Property="Padding" Value="10,5"/>
-                <Setter Property="Margin" Value="5"/>
-            </Style>
-            
+            <!-- ========= STYLES ========= -->
+
+            <!-- LABEL -->
             <Style TargetType="Label">
-                <Setter Property="TextColor" Value="{StaticResource DarkText}" />
-                <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
+                <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
+                <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
             </Style>
 
+            <!-- BUTTON -->
             <Style TargetType="Button">
-                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                <Setter Property="BackgroundColor" Value="{DynamicResource PrimaryColor}" />
                 <Setter Property="TextColor" Value="White" />
                 <Setter Property="CornerRadius" Value="12" />
                 <Setter Property="Padding" Value="14" />
             </Style>
 
+            <!-- BORDER -->
             <Style TargetType="Border">
-                <Setter Property="Stroke" Value="#DDDDDD" />
+                <Setter Property="Stroke" Value="{DynamicResource DividerColor}" />
                 <Setter Property="StrokeThickness" Value="1" />
-                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="BackgroundColor" Value="{DynamicResource CardBackground}" />
                 <Setter Property="StrokeShape">
                     <Setter.Value>
                         <RoundRectangle CornerRadius="12" />
@@ -54,6 +68,5 @@
             </Style>
 
         </ResourceDictionary>
-
     </Application.Resources>
 </Application>

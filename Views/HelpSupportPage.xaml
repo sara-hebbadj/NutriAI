@@ -4,7 +4,7 @@
              x:Class="NutriAI.Views.HelpSupportPage"
              Title="HelpSupportPage">
     <VerticalStackLayout Padding="20">
-        <Label Text="Need Help?" FontSize="24" />
+        <Label Text="Need Help?" FontSize="{StaticResource TitleFontSize}" />
         <Button Text="Contact Support" Command="{Binding ContactSupportCommand}" />
     </VerticalStackLayout>
 

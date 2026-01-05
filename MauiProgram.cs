@@ -43,7 +43,7 @@ public static class MauiProgram
         // ----------------------------------------
         builder.Services.AddSingleton<HomePage>();
         builder.Services.AddSingleton<SearchPage>();
-        builder.Services.AddSingleton<SavedRecipesPage>();
+        builder.Services.AddSingleton<Views.SavedRecipesPage>();
         builder.Services.AddSingleton<ProfilePage>();
         builder.Services.AddSingleton<SignupPage>();
         builder.Services.AddTransient<RecipeDetailsPage>();
