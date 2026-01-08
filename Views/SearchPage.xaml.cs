@@ -1,13 +1,90 @@
-using NutriAI.ViewModels;
+﻿using NutriAI.Models;
+using NutriAI.Services;
+using System.Collections.ObjectModel;
 
 namespace NutriAI.Views;
 
 public partial class SearchPage : ContentPage
 {
+    // ========================
+    // SEARCH DATA
+    // ========================
+    private readonly IRecipeService _recipeService = ServiceLocator.RecipeService;
+    private ObservableCollection<Recipe> _allRecipes = new();
+    private readonly ObservableCollection<Recipe> _filteredRecipes = new();
+
     public SearchPage()
     {
         InitializeComponent();
+
+        _allRecipes = _recipeService.GetAllRecipes();
+        ResultsCollection.ItemsSource = _filteredRecipes;
+
+        // Start EMPTY
+        _filteredRecipes.Clear();
+
     }
+
+    // ========================
+    // SEARCH LOGIC
+    // ========================
+
+    void OnSearchTextChanged(object sender, TextChangedEventArgs e)
+    {
+        ApplySearch(e.NewTextValue);
+    }
+
+    void OnSearchTapped(object sender, EventArgs e)
+    {
+        ApplySearch(SearchEntry.Text);
+    }
+
+    void ApplySearch(string? query)
+    {
+        _filteredRecipes.Clear();
+
+        if (string.IsNullOrWhiteSpace(query))
+            return; // 👈 nothing shown until typing
+
+        string q = query.ToLowerInvariant();
+
+        var results = _allRecipes.Where(r =>
+            (!string.IsNullOrWhiteSpace(r.Title) &&
+                r.Title.ToLowerInvariant().Contains(q)) ||
+
+            (r.Ingredients != null &&
+                r.Ingredients.Any(i =>
+                    !string.IsNullOrWhiteSpace(i) &&
+                    i.ToLowerInvariant().Contains(q))) ||
+
+            (!string.IsNullOrWhiteSpace(r.MealType) &&
+                r.MealType.ToLowerInvariant().Contains(q)) ||
+
+            (!string.IsNullOrWhiteSpace(r.Diet) &&
+                r.Diet.ToLowerInvariant().Contains(q)) ||
+
+            (!string.IsNullOrWhiteSpace(r.Cuisine) &&
+                r.Cuisine.ToLowerInvariant().Contains(q))
+        );
+
+        foreach (var r in results)
+            _filteredRecipes.Add(r);
+    }
+    private async void OnRecipeSelected(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is Models.Recipe recipe)
+        {
+            await Shell.Current.GoToAsync(
+                nameof(RecipeDetailsPage),
+                new Dictionary<string, object>
+                {
+                    { "Recipe", recipe }
+                });
+
+            ((CollectionView)sender).SelectedItem = null;
+        }
+    }
+
 
     // ========================
     // FLYOUT TOGGLE HELPERS
@@ -69,6 +146,10 @@ public partial class SearchPage : ContentPage
         CloseAllFlyouts();
     }
 
+    // ========================
+    // FONT SIZE CONTROLS
+    // ========================
+
     void OnMediumFont(object sender, EventArgs e)
     {
         Application.Current.Resources["BodyFontSize"] =
@@ -96,5 +177,3 @@ public partial class SearchPage : ContentPage
             Application.Current.Resources["TitleSmall"];
     }
 }
-
-

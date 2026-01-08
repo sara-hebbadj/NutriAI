@@ -68,24 +68,30 @@
 
                 <!-- SEARCH BAR -->
                 <Border Margin="20,0"
-                        BackgroundColor="{DynamicResource DividerColor}"
-                        StrokeShape="RoundRectangle 15"
-                        HeightRequest="55">
+        BackgroundColor="{DynamicResource DividerColor}"
+        StrokeShape="RoundRectangle 15"
+        HeightRequest="55">
+
                     <Grid ColumnDefinitions="*,Auto" Padding="15,0">
 
-                        <Entry Placeholder="Ask for recipes..."
-                               TextColor="{DynamicResource PrimaryTextColor}"
-                               PlaceholderColor="{DynamicResource SecondaryTextColor}"
-                               SemanticProperties.Description="Search recipes input"/>
+                        <Entry x:Name="SearchEntry"
+               Placeholder="Ask for recipes..."
+               TextColor="{DynamicResource PrimaryTextColor}"
+               PlaceholderColor="{DynamicResource SecondaryTextColor}"
+               TextChanged="OnSearchTextChanged"/>
 
                         <Border Grid.Column="1"
-                                BackgroundColor="{DynamicResource AccentGreen}"
-                                StrokeShape="RoundRectangle 10"
-                                WidthRequest="45"
-                                HeightRequest="35">
-                            <Image Source="search_white.png"
-                                   SemanticProperties.Description="Search button"/>
+                BackgroundColor="{DynamicResource AccentGreen}"
+                StrokeShape="RoundRectangle 10"
+                WidthRequest="45"
+                HeightRequest="35">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSearchTapped"/>
+                            </Border.GestureRecognizers>
+
+                            <Image Source="search_white.png"/>
                         </Border>
+
                     </Grid>
                 </Border>
 
@@ -203,10 +209,14 @@
                        Margin="20,10,20,0"/>
 
                 <!-- RECIPE LIST (SCROLLS & TAPS CORRECTLY) -->
-                <CollectionView ItemsSource="{Binding Recipes}"
+
+                <CollectionView x:Name="RecipesCollection"
+                                ItemsSource="{Binding FilteredRecipes}"
                                 SelectionMode="Single"
                                 SelectionChanged="OnRecipeSelected"
                                 Margin="20,0">
+
+
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Border
@@ -218,11 +228,20 @@
 
                                 <VerticalStackLayout>
 
-                                    <!-- IMAGE PLACEHOLDER -->
+                                    <!-- RECIPE IMAGE -->
                                     <Border
-                                        BackgroundColor="{DynamicResource DividerColor}"
-                                        HeightRequest="160"
-                                        StrokeShape="RoundRectangle 20"/>
+                                      HeightRequest="160"
+                                      StrokeShape="RoundRectangle 20"
+                                      BackgroundColor="{DynamicResource DividerColor}"
+                                      Padding="0">
+
+                                        <Image
+                                        Source="{Binding ImageUrl}"
+                                        Aspect="AspectFill"
+                                        SemanticProperties.Description="{Binding Title, StringFormat='Image of {0}'}"/>
+
+                                    </Border>
+
 
                                     <VerticalStackLayout Padding="16" Spacing="10">
 

@@ -4,11 +4,33 @@ namespace NutriAI.Views;
 
 public partial class HomePage : ContentPage
 {
+    // Strongly-typed ViewModel access
+    private HomeViewModel VM => (HomeViewModel)BindingContext;
+
     public HomePage()
     {
         InitializeComponent();
         BindingContext = new HomeViewModel();
     }
+
+    // ========================
+    // SEARCH (NEW – REQUIRED)
+    // ========================
+
+    void OnSearchTextChanged(object sender, TextChangedEventArgs e)
+    {
+        VM.ApplySearch(e.NewTextValue);
+    }
+
+    void OnSearchTapped(object sender, EventArgs e)
+    {
+        // Uses Entry text, NOT CollectionView
+        VM.ApplySearch(SearchEntry.Text);
+    }
+
+    // ========================
+    // NAVIGATION (UNCHANGED)
+    // ========================
 
     private async void OnRecipeSelected(object sender, SelectionChangedEventArgs e)
     {
@@ -25,7 +47,10 @@ public partial class HomePage : ContentPage
         }
     }
 
-    // Flyouts (unchanged)
+    // ========================
+    // FLYOUTS (UNCHANGED)
+    // ========================
+
     private void OnMealTypeTapped(object sender, EventArgs e) =>
         MealTypeFlyout.IsVisible = !MealTypeFlyout.IsVisible;
 
@@ -37,21 +62,41 @@ public partial class HomePage : ContentPage
 
     private void OnMealTypeSelected(object sender, EventArgs e)
     {
-        MealTypeLabel.Text = ((Label)sender).Text;
+        if (sender is Label label && label.Text != null)
+        {
+            MealTypeLabel.Text = label.Text;
+            VM.SelectedMealType = label.Text;
+        }
+
         MealTypeFlyout.IsVisible = false;
     }
 
     private void OnDietSelected(object sender, EventArgs e)
     {
-        DietLabel.Text = ((Label)sender).Text;
+        if (sender is Label label && label.Text != null)
+        {
+            DietLabel.Text = label.Text;
+            VM.SelectedDiet = label.Text;
+        }
+
         DietFlyout.IsVisible = false;
     }
 
     private void OnCuisineSelected(object sender, EventArgs e)
     {
-        CuisineLabel.Text = ((Label)sender).Text;
+        if (sender is Label label && label.Text != null)
+        {
+            CuisineLabel.Text = label.Text;
+            VM.SelectedCuisine = label.Text;
+        }
+
         CuisineFlyout.IsVisible = false;
     }
+
+    // ========================
+    // FONT SIZE (UNCHANGED)
+    // ========================
+
     void OnSmallFont(object sender, EventArgs e)
     {
         Application.Current.Resources["BodyFontSize"] =

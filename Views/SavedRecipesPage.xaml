@@ -90,11 +90,19 @@
 
                                 <VerticalStackLayout>
 
-                                    <!-- IMAGE PLACEHOLDER -->
+                                    <!-- RECIPE IMAGE -->
                                     <Border
-                                        BackgroundColor="{DynamicResource DividerColor}"
-                                        HeightRequest="160"
-                                        StrokeShape="RoundRectangle 20"/>
+                                     HeightRequest="160"
+                                     StrokeShape="RoundRectangle 20"
+                                     BackgroundColor="{DynamicResource DividerColor}"
+                                     Padding="0">
+
+                                        <Image
+                                        Source="{Binding ImageUrl}"
+                                        Aspect="AspectFill"
+                                        SemanticProperties.Description="{Binding Title, StringFormat='Image of {0}'}"/>
+
+                                    </Border>
 
                                     <VerticalStackLayout Padding="16" Spacing="10">
 

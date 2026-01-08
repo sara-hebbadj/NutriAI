@@ -25,4 +25,6 @@ public class Recipe
     public string MealType { get; set; } = string.Empty;   // breakfast, lunch, dinner
     public string Diet { get; set; } = string.Empty;       // vegan, keto, etc.
     public string Cuisine { get; set; } = string.Empty;    // Italian, Asian, etc.
+    public bool IsSaved { get; set; }
+
 }

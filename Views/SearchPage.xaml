@@ -76,34 +76,41 @@
 
                 <!-- SEARCH BAR  -->
                 <Border Margin="20,0"
-                            BackgroundColor="{DynamicResource DividerColor}"
-                            StrokeShape="RoundRectangle 15"
-                            HeightRequest="55">
+        BackgroundColor="{DynamicResource DividerColor}"
+        StrokeShape="RoundRectangle 15"
+        HeightRequest="55">
+
                     <Grid ColumnDefinitions="*,Auto" Padding="15,0">
 
-                        <Entry Placeholder="Ask for recipes..."
-                                   TextColor="{DynamicResource PrimaryTextColor}"
-                                   PlaceholderColor="{DynamicResource SecondaryTextColor}"
-                                   SemanticProperties.Description="Search recipes input"/>
+                        <Entry x:Name="SearchEntry"
+               Placeholder="Ask for recipes..."
+               TextColor="{DynamicResource PrimaryTextColor}"
+               PlaceholderColor="{DynamicResource SecondaryTextColor}"
+               TextChanged="OnSearchTextChanged"/>
 
                         <Border Grid.Column="1"
-                                    BackgroundColor="{DynamicResource AccentGreen}"
-                                    StrokeShape="RoundRectangle 10"
-                                    WidthRequest="45"
-                                    HeightRequest="35">
-                            <Image Source="search_white.png"
-                                       SemanticProperties.Description="Search button"/>
+                BackgroundColor="{DynamicResource AccentGreen}"
+                StrokeShape="RoundRectangle 10"
+                WidthRequest="45"
+                HeightRequest="35">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSearchTapped"/>
+                            </Border.GestureRecognizers>
+
+                            <Image Source="search_white.png"/>
                         </Border>
+
                     </Grid>
                 </Border>
 
-                 <!-- FILTER CHIPS + FLYOUTS -->
+
+                <!-- FILTER CHIPS + FLYOUTS -->
                 <VerticalStackLayout Padding="20,0" Spacing="10">
 
                     <HorizontalStackLayout Spacing="12">
                         <!-- MEAL TYPE -->
                         <Border x:Name="MealTypeChip"
-                                BackgroundColor="{DynamicResource CardBackground}"
+                                BackgroundColor="{DynamicResource ChipBackground}"
                                 Stroke="{DynamicResource DividerColor}"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 22"
@@ -122,7 +129,7 @@
 
                         <!-- DIET -->
                         <Border x:Name="DietChip"
-                                BackgroundColor="{DynamicResource CardBackground}"
+                                BackgroundColor="{DynamicResource ChipBackground}"
                                 Stroke="{DynamicResource DividerColor}"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 22"
@@ -141,7 +148,7 @@
 
                         <!-- CUISINE -->
                         <Border x:Name="CuisineChip"
-                                BackgroundColor="{DynamicResource CardBackground}"
+                                BackgroundColor="{DynamicResource ChipBackground}"
                                 Stroke="{DynamicResource DividerColor}"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 22"
@@ -183,7 +190,7 @@
                     <!-- DIET FLYOUT -->
                     <Border x:Name="DietFlyout"
                             IsVisible="False"
-                            BackgroundColor="{DynamicResource Chipckground}"
+                            BackgroundColor="{DynamicResource ChipBackground}"
                             Stroke="{DynamicResource DividerColor}"
                             StrokeThickness="1"
                             StrokeShape="RoundRectangle 16"
@@ -223,7 +230,53 @@
                 </VerticalStackLayout>
 
                 <!-- Empty space for results -->
-                <Grid HeightRequest="300"/>
+<CollectionView x:Name="ResultsCollection"
+                Margin="20,10"
+                ItemsSource="{Binding SavedRecipes}"
+                SelectionMode="Single"
+                SelectionChanged="OnRecipeSelected">
+
+    <CollectionView.ItemTemplate>
+        <DataTemplate>
+            <!-- SAME CARD STYLE AS HOME -->
+            <Border Stroke="{DynamicResource DividerColor}"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="0"
+                    Margin="0,10">
+
+                <VerticalStackLayout>
+
+                    <!-- Recipe image -->
+                    <Image Source="{Binding ImageUrl}"
+                           HeightRequest="180"
+                           Aspect="AspectFill"/>
+
+                    <VerticalStackLayout Padding="12" Spacing="6">
+
+                        <Label Text="{Binding Title}"
+                               FontAttributes="Bold"
+                               FontSize="{DynamicResource BodyFontSize}"
+                               TextColor="{DynamicResource PrimaryTextColor}"/>
+
+                        <HorizontalStackLayout Spacing="12">
+                            <Label Text="{Binding Calories, StringFormat='{0} kcal'}"
+                                   FontSize="13"
+                                   TextColor="{DynamicResource SecondaryTextColor}"/>
+
+                            <Label Text="{Binding CookingTimeMinutes, StringFormat='{0} min'}"
+                                   FontSize="13"
+                                   TextColor="{DynamicResource SecondaryTextColor}"/>
+                        </HorizontalStackLayout>
+
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </Border>
+        </DataTemplate>
+    </CollectionView.ItemTemplate>
+
+</CollectionView>
+
             </VerticalStackLayout>
          
         </ScrollView>

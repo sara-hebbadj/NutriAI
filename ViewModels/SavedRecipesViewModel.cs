@@ -1,25 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using NutriAI.Models;
+using NutriAI.Services;
 
 namespace NutriAI.ViewModels;
 
 public class SavedRecipesViewModel
 {
-    public ObservableCollection<Recipe> SavedRecipes { get; }
+    private readonly IRecipeService _recipeService = ServiceLocator.RecipeService;
 
-    public SavedRecipesViewModel()
-    {
-        SavedRecipes = new ObservableCollection<Recipe>
-        {
-            new Recipe
-            {
-                Title = "Protein Smoothie Bowl",
-                Calories = 350,
-                CookingTimeMinutes = 5,
-                ProteinGrams = 25,
-                CarbsGrams = 40,
-                FatGrams = 8
-            }
-        };
-    }
+    public ObservableCollection<Recipe> SavedRecipes => _recipeService.GetSavedRecipes();
 }

@@ -7,10 +7,10 @@ namespace NutriAI.Views;
 
 public partial class SavedRecipesPage : ContentPage
 {
-    public SavedRecipesPage(SavedRecipesViewModel vm)
+    public SavedRecipesPage()
     {
         InitializeComponent();
-        BindingContext = vm;
+        BindingContext = new SavedRecipesViewModel();
     }
 
     private async void OnRecipeSelected(object sender, SelectionChangedEventArgs e)
@@ -27,6 +27,7 @@ public partial class SavedRecipesPage : ContentPage
             ((CollectionView)sender).SelectedItem = null;
         }
     }
+
     void OnSmallFont(object sender, EventArgs e)
     {
         Application.Current.Resources["BodyFontSize"] =

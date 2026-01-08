@@ -66,11 +66,19 @@
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="20" Spacing="20">
 
-                <!-- IMAGE PLACEHOLDER -->
-                <Border HeightRequest="220"
-                        BackgroundColor="{DynamicResource DividerColor}"
-                        StrokeShape="RoundRectangle 25"
-                        SemanticProperties.Description="Recipe image placeholder"/>
+                <!-- RECIPE IMAGE -->
+                <Border
+                  HeightRequest="160"
+                  StrokeShape="RoundRectangle 20"
+                  BackgroundColor="{DynamicResource DividerColor}"
+                  Padding="0">
+
+                    <Image
+                     Source="{Binding Recipe.ImageUrl}"
+                     Aspect="AspectFill"
+                     SemanticProperties.Description="{Binding Title, StringFormat='Image of {0}'}"/>
+
+                </Border>
 
                 <!-- TITLE -->
                 <Label Text="{Binding Recipe.Title}"
@@ -151,13 +159,17 @@
                 </CollectionView>
 
                 <!-- SAVE BUTTON -->
-                <Button Text="Save Recipe"
-                        BackgroundColor="{DynamicResource AccentGreen}"
-                        TextColor="White"
-                        CornerRadius="25"
-                        HeightRequest="50"
-                        SemanticProperties.Description="Save recipe button"
-                        SemanticProperties.Hint="Tap to save this recipe"/>
+                <Button
+                 Text="{Binding SaveButtonText}"
+                 Command="{Binding ToggleSaveCommand}"
+                 BackgroundColor="{DynamicResource AccentGreen}"
+                 TextColor="White"
+                 CornerRadius="25"
+                 HeightRequest="50"
+                 SemanticProperties.Description="Save or remove recipe"
+                 SemanticProperties.Hint="Toggles saved state"/>
+
+
 
             </VerticalStackLayout>
         </ScrollView>
