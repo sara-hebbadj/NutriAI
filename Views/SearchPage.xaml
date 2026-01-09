@@ -259,11 +259,11 @@
                                TextColor="{DynamicResource PrimaryTextColor}"/>
 
                         <HorizontalStackLayout Spacing="12">
-                            <Label Text="{Binding Calories, StringFormat='{0} kcal'}"
+                                            <Label Text="{Binding Calories, StringFormat='🔥 {0} kcal'}"
                                    FontSize="13"
                                    TextColor="{DynamicResource SecondaryTextColor}"/>
 
-                            <Label Text="{Binding CookingTimeMinutes, StringFormat='{0} min'}"
+                                            <Label Text="{Binding CookingTimeMinutes, StringFormat='⏱ {0} min'}"
                                    FontSize="13"
                                    TextColor="{DynamicResource SecondaryTextColor}"/>
                         </HorizontalStackLayout>

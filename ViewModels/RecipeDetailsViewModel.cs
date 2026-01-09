@@ -51,4 +51,22 @@ public class RecipeDetailsViewModel : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
     private void OnPropertyChanged(string name) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    public async Task LoadDetailsAsync()
+    {
+        if (_recipeService is ApiRecipeService api)
+        {
+            var fullRecipe = await api.GetRecipeDetailsAsync(Recipe.Id);
+
+            Recipe.Calories = fullRecipe.Calories;
+            Recipe.ProteinGrams = fullRecipe.ProteinGrams;
+            Recipe.CarbsGrams = fullRecipe.CarbsGrams;
+            Recipe.FatGrams = fullRecipe.FatGrams;
+            Recipe.CookingTimeMinutes = fullRecipe.CookingTimeMinutes;
+            Recipe.Ingredients = fullRecipe.Ingredients;
+            Recipe.Instructions = fullRecipe.Instructions;
+
+            OnPropertyChanged(nameof(Recipe));
+        }
+    }
+
 }

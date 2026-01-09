@@ -12,6 +12,12 @@ public partial class HomePage : ContentPage
         InitializeComponent();
         BindingContext = new HomeViewModel();
     }
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await ((HomeViewModel)BindingContext).InitializeAsync();
+    }
+
 
     // ========================
     // SEARCH (NEW – REQUIRED)

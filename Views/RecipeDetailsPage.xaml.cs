@@ -49,6 +49,13 @@ public partial class RecipeDetailsPage : ContentPage
         Application.Current.Resources["TitleFontSize"] =
             Application.Current.Resources["TitleLarge"];
     }
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (BindingContext is RecipeDetailsViewModel vm)
+            await vm.LoadDetailsAsync();
+    }
 
 
 

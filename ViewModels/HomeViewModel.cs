@@ -29,6 +29,16 @@ public class HomeViewModel : INotifyPropertyChanged
         foreach (var r in AllRecipes)
             FilteredRecipes.Add(r);
     }
+    public async Task InitializeAsync()
+    {
+        if (_recipeService is ApiRecipeService api)
+            await api.LoadRecipesAsync();
+
+        FilteredRecipes.Clear();
+        foreach (var r in AllRecipes)
+            FilteredRecipes.Add(r);
+    }
+
 
     // ========================
     // SEARCH
