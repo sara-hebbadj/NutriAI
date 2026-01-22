@@ -8,4 +8,10 @@ public class ApiSearchRecipeDto
 
     public int readyInMinutes { get; set; }
     public Nutrition nutrition { get; set; }
+
+    public List<string> dishTypes { get; set; }
+    public List<string> diets { get; set; }
+    public List<string> cuisines { get; set; }
+
 }
+

@@ -163,6 +163,7 @@
                             <Label Text="Lunch" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
                             <Label Text="Dinner" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
                             <Label Text="Snack" GestureRecognizers="{TapGestureRecognizer Tapped=OnMealTypeSelected}"/>
+                            <Label Text="Clear filters" GestureRecognizers="{TapGestureRecognizer Tapped=OnClearFiltersTapped}"/>
                         </VerticalStackLayout>
                     </Border>
 
@@ -179,6 +180,7 @@
                             <Label Text="Keto" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
                             <Label Text="Vegan" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
                             <Label Text="Vegetarian" GestureRecognizers="{TapGestureRecognizer Tapped=OnDietSelected}"/>
+                            <Label Text="Clear filters" GestureRecognizers="{TapGestureRecognizer Tapped=OnClearFiltersTapped}"/>
                         </VerticalStackLayout>
                     </Border>
 
@@ -195,6 +197,7 @@
                             <Label Text="Asian" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
                             <Label Text="Middle Eastern" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
                             <Label Text="American" GestureRecognizers="{TapGestureRecognizer Tapped=OnCuisineSelected}"/>
+                            <Label Text="Clear filters" GestureRecognizers="{TapGestureRecognizer Tapped=OnClearFiltersTapped}"/>
                         </VerticalStackLayout>
                     </Border>
 

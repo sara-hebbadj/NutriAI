@@ -10,74 +10,138 @@ public class HomeViewModel : INotifyPropertyChanged
     private readonly IRecipeService _recipeService =
         ServiceLocator.RecipeService;
 
-    // ALL recipes (source of truth)
+    // ========================
+    // DATA SOURCES
+    // ========================
     public ObservableCollection<Recipe> AllRecipes { get; }
-
-    // What the UI actually shows
     public ObservableCollection<Recipe> FilteredRecipes { get; } = new();
 
-    // Optional filters (future-ready)
+    // ========================
+    // FILTER STATE
+    // ========================
     public string? SelectedMealType { get; set; }
     public string? SelectedDiet { get; set; }
     public string? SelectedCuisine { get; set; }
 
+    private string? _searchQuery;
+
     public HomeViewModel()
     {
         AllRecipes = _recipeService.GetAllRecipes();
-
-        // Default: show all recipes
-        foreach (var r in AllRecipes)
-            FilteredRecipes.Add(r);
     }
+
+    // ========================
+    // INITIAL LOAD
+    // ========================
     public async Task InitializeAsync()
     {
         if (_recipeService is ApiRecipeService api)
             await api.LoadRecipesAsync();
 
-        FilteredRecipes.Clear();
-        foreach (var r in AllRecipes)
-            FilteredRecipes.Add(r);
+        ApplyAllFilters();
     }
-
 
     // ========================
     // SEARCH
     // ========================
     public void ApplySearch(string? query)
     {
+        _searchQuery = query;
+        ApplyAllFilters();
+    }
+
+    // ========================
+    // FILTER API
+    // ========================
+    public void ApplyFilters()
+    {
+        ApplyAllFilters();
+    }
+
+    public void ClearFilters()
+    {
+        SelectedMealType = null;
+        SelectedDiet = null;
+        SelectedCuisine = null;
+        ApplyAllFilters();
+    }
+
+    // ========================
+    // SCORING-BASED PIPELINE
+    // ========================
+    private void ApplyAllFilters()
+    {
         FilteredRecipes.Clear();
 
-        // If no search, show all (Home feed behavior)
-        if (string.IsNullOrWhiteSpace(query))
+        var ranked = AllRecipes
+            .Select(r => new
+            {
+                Recipe = r,
+                Score = CalculateScore(r)
+            })
+            .Where(x => x.Score > 0)
+            .OrderByDescending(x => x.Score)
+            .Select(x => x.Recipe);
+
+        foreach (var r in ranked)
+            FilteredRecipes.Add(r);
+    }
+
+    // ========================
+    // SCORING FUNCTION
+    // ========================
+    private int CalculateScore(Recipe r)
+    {
+        int score = 0;
+
+        // 🔍 Search relevance
+        if (!string.IsNullOrWhiteSpace(_searchQuery))
         {
-            foreach (var r in AllRecipes)
-                FilteredRecipes.Add(r);
-            return;
+            var q = _searchQuery.ToLowerInvariant();
+
+            if (!string.IsNullOrWhiteSpace(r.Title) &&
+                r.Title.Contains(q, StringComparison.OrdinalIgnoreCase))
+                score += 3;
+
+            if (r.Ingredients.Any(i =>
+                i.Contains(q, StringComparison.OrdinalIgnoreCase)))
+                score += 2;
         }
 
-        string q = query.ToLowerInvariant();
+        // 🍽 Meal type
+        if (!string.IsNullOrWhiteSpace(SelectedMealType) &&
+            r.MealType.Equals(SelectedMealType,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            score += 2;
+        }
 
-        var results = AllRecipes.Where(r =>
-            (!string.IsNullOrWhiteSpace(r.Title) &&
-                r.Title.ToLowerInvariant().Contains(q)) ||
+        // 🥗 Diet
+        if (!string.IsNullOrWhiteSpace(SelectedDiet) &&
+            r.Diet.Equals(SelectedDiet,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            score += 2;
+        }
 
-            (r.Ingredients != null &&
-                r.Ingredients.Any(i =>
-                    !string.IsNullOrWhiteSpace(i) &&
-                    i.ToLowerInvariant().Contains(q))) ||
+        // 🌍 Cuisine
+        if (!string.IsNullOrWhiteSpace(SelectedCuisine) &&
+            r.Cuisine.Equals(SelectedCuisine,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            score += 1;
+        }
 
-            (!string.IsNullOrWhiteSpace(r.MealType) &&
-                r.MealType.ToLowerInvariant().Contains(q)) ||
+        // Default: show everything when no filters/search
+        if (string.IsNullOrWhiteSpace(_searchQuery) &&
+            SelectedMealType == null &&
+            SelectedDiet == null &&
+            SelectedCuisine == null)
+        {
+            score = 1;
+        }
 
-            (!string.IsNullOrWhiteSpace(r.Diet) &&
-                r.Diet.ToLowerInvariant().Contains(q)) ||
-
-            (!string.IsNullOrWhiteSpace(r.Cuisine) &&
-                r.Cuisine.ToLowerInvariant().Contains(q))
-        );
-
-        foreach (var r in results)
-            FilteredRecipes.Add(r);
+        return score;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

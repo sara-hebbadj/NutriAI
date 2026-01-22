@@ -28,3 +28,4 @@ public class Recipe
     public bool IsSaved { get; set; }
 
 }
+

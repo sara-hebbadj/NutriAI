@@ -1,78 +1,41 @@
 ﻿using NutriAI.Models;
-using NutriAI.Services;
-using System.Collections.ObjectModel;
+using NutriAI.ViewModels;
 
 namespace NutriAI.Views;
 
 public partial class SearchPage : ContentPage
 {
-    // ========================
-    // SEARCH DATA
-    // ========================
-    private readonly IRecipeService _recipeService = ServiceLocator.RecipeService;
-    private ObservableCollection<Recipe> _allRecipes = new();
-    private readonly ObservableCollection<Recipe> _filteredRecipes = new();
+    private SearchViewModel VM => (SearchViewModel)BindingContext;
 
     public SearchPage()
     {
         InitializeComponent();
 
-        _allRecipes = _recipeService.GetAllRecipes();
-        ResultsCollection.ItemsSource = _filteredRecipes;
-
-        // Start EMPTY
-        _filteredRecipes.Clear();
-
+        BindingContext = new SearchViewModel();
+        ResultsCollection.ItemsSource = VM.Results;
     }
 
     // ========================
-    // SEARCH LOGIC
+    // SEARCH
     // ========================
 
     void OnSearchTextChanged(object sender, TextChangedEventArgs e)
     {
-        ApplySearch(e.NewTextValue);
+        VM.ApplySearch(e.NewTextValue);
     }
 
     void OnSearchTapped(object sender, EventArgs e)
     {
-        ApplySearch(SearchEntry.Text);
+        VM.ApplySearch(SearchEntry.Text);
     }
 
-    void ApplySearch(string? query)
-    {
-        _filteredRecipes.Clear();
+    // ========================
+    // NAVIGATION
+    // ========================
 
-        if (string.IsNullOrWhiteSpace(query))
-            return; // 👈 nothing shown until typing
-
-        string q = query.ToLowerInvariant();
-
-        var results = _allRecipes.Where(r =>
-            (!string.IsNullOrWhiteSpace(r.Title) &&
-                r.Title.ToLowerInvariant().Contains(q)) ||
-
-            (r.Ingredients != null &&
-                r.Ingredients.Any(i =>
-                    !string.IsNullOrWhiteSpace(i) &&
-                    i.ToLowerInvariant().Contains(q))) ||
-
-            (!string.IsNullOrWhiteSpace(r.MealType) &&
-                r.MealType.ToLowerInvariant().Contains(q)) ||
-
-            (!string.IsNullOrWhiteSpace(r.Diet) &&
-                r.Diet.ToLowerInvariant().Contains(q)) ||
-
-            (!string.IsNullOrWhiteSpace(r.Cuisine) &&
-                r.Cuisine.ToLowerInvariant().Contains(q))
-        );
-
-        foreach (var r in results)
-            _filteredRecipes.Add(r);
-    }
     private async void OnRecipeSelected(object sender, SelectionChangedEventArgs e)
     {
-        if (e.CurrentSelection.FirstOrDefault() is Models.Recipe recipe)
+        if (e.CurrentSelection.FirstOrDefault() is Recipe recipe)
         {
             await Shell.Current.GoToAsync(
                 nameof(RecipeDetailsPage),
@@ -85,9 +48,8 @@ public partial class SearchPage : ContentPage
         }
     }
 
-
     // ========================
-    // FLYOUT TOGGLE HELPERS
+    // FLYOUT TOGGLES
     // ========================
 
     void CloseAllFlyouts()
@@ -99,23 +61,20 @@ public partial class SearchPage : ContentPage
 
     void OnMealTypeTapped(object sender, EventArgs e)
     {
-        bool open = !MealTypeFlyout.IsVisible;
         CloseAllFlyouts();
-        MealTypeFlyout.IsVisible = open;
+        MealTypeFlyout.IsVisible = true;
     }
 
     void OnDietTapped(object sender, EventArgs e)
     {
-        bool open = !DietFlyout.IsVisible;
         CloseAllFlyouts();
-        DietFlyout.IsVisible = open;
+        DietFlyout.IsVisible = true;
     }
 
     void OnCuisineTapped(object sender, EventArgs e)
     {
-        bool open = !CuisineFlyout.IsVisible;
         CloseAllFlyouts();
-        CuisineFlyout.IsVisible = open;
+        CuisineFlyout.IsVisible = true;
     }
 
     // ========================
@@ -125,7 +84,17 @@ public partial class SearchPage : ContentPage
     void OnMealTypeSelected(object sender, EventArgs e)
     {
         if (sender is Label label)
-            MealTypeLabel.Text = label.Text;
+        {
+            var value = label.Text.ToLowerInvariant();
+
+            VM.SelectedMealType =
+                VM.SelectedMealType == value ? null : value;
+
+            MealTypeLabel.Text =
+                VM.SelectedMealType == null ? "Meal Type" : label.Text;
+
+            VM.ApplyFilters(); 
+        }
 
         CloseAllFlyouts();
     }
@@ -133,7 +102,17 @@ public partial class SearchPage : ContentPage
     void OnDietSelected(object sender, EventArgs e)
     {
         if (sender is Label label)
-            DietLabel.Text = label.Text;
+        {
+            var value = label.Text.ToLowerInvariant();
+
+            VM.SelectedDiet =
+                VM.SelectedDiet == value ? null : value;
+
+            DietLabel.Text =
+                VM.SelectedDiet == null ? "Diet" : label.Text;
+
+            VM.ApplyFilters(); 
+        }
 
         CloseAllFlyouts();
     }
@@ -141,20 +120,53 @@ public partial class SearchPage : ContentPage
     void OnCuisineSelected(object sender, EventArgs e)
     {
         if (sender is Label label)
-            CuisineLabel.Text = label.Text;
+        {
+            var value = label.Text.ToLowerInvariant();
+
+            VM.SelectedCuisine =
+                VM.SelectedCuisine == value ? null : value;
+
+            CuisineLabel.Text =
+                VM.SelectedCuisine == null ? "Cuisine" : label.Text;
+
+            VM.ApplyFilters(); 
+        }
+
+        CloseAllFlyouts();
+    }
+
+
+    // ========================
+    // CLEAR FILTERS
+    // ========================
+
+    private void OnClearFiltersTapped(object sender, EventArgs e)
+    {
+        VM.ClearFilters();
+
+        MealTypeLabel.Text = "Meal Type";
+        DietLabel.Text = "Diet";
+        CuisineLabel.Text = "Cuisine";
 
         CloseAllFlyouts();
     }
 
     // ========================
-    // FONT SIZE CONTROLS
+    // FONT SIZE
     // ========================
+
+    void OnSmallFont(object sender, EventArgs e)
+    {
+        Application.Current.Resources["BodyFontSize"] =
+            Application.Current.Resources["FontSmall"];
+        Application.Current.Resources["TitleFontSize"] =
+            Application.Current.Resources["TitleSmall"];
+    }
 
     void OnMediumFont(object sender, EventArgs e)
     {
         Application.Current.Resources["BodyFontSize"] =
             Application.Current.Resources["FontMedium"];
-
         Application.Current.Resources["TitleFontSize"] =
             Application.Current.Resources["TitleMedium"];
     }
@@ -163,17 +175,7 @@ public partial class SearchPage : ContentPage
     {
         Application.Current.Resources["BodyFontSize"] =
             Application.Current.Resources["FontLarge"];
-
         Application.Current.Resources["TitleFontSize"] =
             Application.Current.Resources["TitleLarge"];
-    }
-
-    void OnSmallFont(object sender, EventArgs e)
-    {
-        Application.Current.Resources["BodyFontSize"] =
-            Application.Current.Resources["FontSmall"];
-
-        Application.Current.Resources["TitleFontSize"] =
-            Application.Current.Resources["TitleSmall"];
     }
 }

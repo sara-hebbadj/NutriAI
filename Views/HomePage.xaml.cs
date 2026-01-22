@@ -57,46 +57,103 @@ public partial class HomePage : ContentPage
     // FLYOUTS (UNCHANGED)
     // ========================
 
-    private void OnMealTypeTapped(object sender, EventArgs e) =>
-        MealTypeFlyout.IsVisible = !MealTypeFlyout.IsVisible;
-
-    private void OnDietTapped(object sender, EventArgs e) =>
-        DietFlyout.IsVisible = !DietFlyout.IsVisible;
-
-    private void OnCuisineTapped(object sender, EventArgs e) =>
-        CuisineFlyout.IsVisible = !CuisineFlyout.IsVisible;
-
-    private void OnMealTypeSelected(object sender, EventArgs e)
+    void CloseAllFlyouts()
     {
-        if (sender is Label label && label.Text != null)
-        {
-            MealTypeLabel.Text = label.Text;
-            VM.SelectedMealType = label.Text;
-        }
-
         MealTypeFlyout.IsVisible = false;
-    }
-
-    private void OnDietSelected(object sender, EventArgs e)
-    {
-        if (sender is Label label && label.Text != null)
-        {
-            DietLabel.Text = label.Text;
-            VM.SelectedDiet = label.Text;
-        }
-
         DietFlyout.IsVisible = false;
+        CuisineFlyout.IsVisible = false;
     }
 
-    private void OnCuisineSelected(object sender, EventArgs e)
+    void OnMealTypeTapped(object sender, EventArgs e)
     {
-        if (sender is Label label && label.Text != null)
+        CloseAllFlyouts();
+        MealTypeFlyout.IsVisible = true;
+    }
+
+    void OnDietTapped(object sender, EventArgs e)
+    {
+        CloseAllFlyouts();
+        DietFlyout.IsVisible = true;
+    }
+
+    void OnCuisineTapped(object sender, EventArgs e)
+    {
+        CloseAllFlyouts();
+        CuisineFlyout.IsVisible = true;
+    }
+
+    // ========================
+    // SELECTION HANDLERS
+    // ========================
+
+    void OnMealTypeSelected(object sender, EventArgs e)
+    {
+        if (sender is Label label)
         {
-            CuisineLabel.Text = label.Text;
-            VM.SelectedCuisine = label.Text;
+            var value = label.Text.ToLowerInvariant();
+
+            VM.SelectedMealType =
+                VM.SelectedMealType == value ? null : value;
+
+            MealTypeLabel.Text =
+                VM.SelectedMealType == null ? "Meal Type" : label.Text;
+
+            VM.ApplyFilters();
         }
 
-        CuisineFlyout.IsVisible = false;
+        CloseAllFlyouts();
+    }
+
+    void OnDietSelected(object sender, EventArgs e)
+    {
+        if (sender is Label label)
+        {
+            var value = label.Text.ToLowerInvariant();
+
+            VM.SelectedDiet =
+                VM.SelectedDiet == value ? null : value;
+
+            DietLabel.Text =
+                VM.SelectedDiet == null ? "Diet" : label.Text;
+
+            VM.ApplyFilters();
+        }
+
+        CloseAllFlyouts();
+    }
+
+    void OnCuisineSelected(object sender, EventArgs e)
+    {
+        if (sender is Label label)
+        {
+            var value = label.Text.ToLowerInvariant();
+
+            VM.SelectedCuisine =
+                VM.SelectedCuisine == value ? null : value;
+
+            CuisineLabel.Text =
+                VM.SelectedCuisine == null ? "Cuisine" : label.Text;
+
+            VM.ApplyFilters();
+        }
+
+        CloseAllFlyouts();
+    }
+
+
+    // ========================
+    // CLEAR FILTERS
+    // ========================
+
+    private void OnClearFiltersTapped(object sender, EventArgs e)
+    {
+        VM.ClearFilters();
+
+        MealTypeLabel.Text = "Meal Type";
+        DietLabel.Text = "Diet";
+        CuisineLabel.Text = "Cuisine";
+
+        CloseAllFlyouts();
     }
 
     // ========================
