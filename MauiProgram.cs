@@ -5,6 +5,7 @@ using NutriAI.Views;
 namespace NutriAI;
 
 using NutriAI.Services;
+using NutriAI.Services.Caching;
 using NutriAI.ViewModels;
 using NutriAI.Views;
 
@@ -59,6 +60,7 @@ public static class MauiProgram
         // REGISTER SERVICES
         // ----------------------------------------
         builder.Services.AddSingleton<IRecipeService, ApiRecipeService>();
+        builder.Services.AddSingleton<ICacheService, FileCacheService>();
 
 
 

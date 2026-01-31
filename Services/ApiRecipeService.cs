@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Diagnostics;
 using NutriAI.DTOs;
 using NutriAI.Models;
+using NutriAI.Services.Caching;
 
 namespace NutriAI.Services;
 
@@ -15,10 +16,24 @@ public class ApiRecipeService : IRecipeService
         Timeout = TimeSpan.FromSeconds(15)
     };
 
+    private readonly ICacheService _cache;
+
     private readonly ObservableCollection<Recipe> _allRecipes = new();
     private readonly ObservableCollection<Recipe> _savedRecipes = new();
 
-    private const string ApiKey = "4e7f8a1091d049969c87dfb2e801cc95";
+    private const string ApiKey = "916a0166fc6f47779e7059fb749bf3bb";
+
+    // =========================
+    // CONSTRUCTOR (DI)
+    // =========================
+    public ApiRecipeService(ICacheService cache)
+    {
+        _cache = cache;
+    }
+
+    // =========================
+    // NORMALISATION MAPS
+    // =========================
     private static readonly Dictionary<string, string> MealTypeMap = new()
     {
         ["breakfast"] = "breakfast",
@@ -31,22 +46,7 @@ public class ApiRecipeService : IRecipeService
         ["snack"] = "snack",
         ["dessert"] = "snack"
     };
-    private static string NormalizeCategory(
-    IEnumerable<string>? apiValues,
-    Dictionary<string, string> map)
-    {
-        var raw = apiValues?
-            .FirstOrDefault()?
-            .ToLowerInvariant()
-            .Trim();
 
-        if (string.IsNullOrEmpty(raw))
-            return "";
-
-        return map.TryGetValue(raw, out var normalized)
-            ? normalized
-            : raw;
-    }
     private static readonly Dictionary<string, string> DietMap = new()
     {
         ["vegetarian"] = "vegetarian",
@@ -58,19 +58,7 @@ public class ApiRecipeService : IRecipeService
         ["dairy free"] = "dairy free",
         ["whole30"] = "balanced"
     };
-    private static string NormalizeDiet(IEnumerable<string>? diets)
-    {
-        if (diets == null) return "balanced";
 
-        foreach (var d in diets)
-        {
-            var key = d.ToLowerInvariant().Trim();
-            if (DietMap.TryGetValue(key, out var normalized))
-                return normalized;
-        }
-
-        return "balanced"; // safe default
-    }
     private static readonly Dictionary<string, string> CuisineMap = new()
     {
         ["italian"] = "italian",
@@ -89,32 +77,29 @@ public class ApiRecipeService : IRecipeService
         ["american"] = "american",
         ["mexican"] = "american"
     };
-    private static string NormalizeCuisine(IEnumerable<string>? cuisines)
-    {
-        if (cuisines == null || !cuisines.Any())
-            return "other";
-
-        var raw = cuisines
-            .FirstOrDefault()?
-            .ToLowerInvariant()
-            .Trim();
-
-        if (string.IsNullOrEmpty(raw))
-            return "other";
-
-        return CuisineMap.TryGetValue(raw, out var normalized)
-            ? normalized
-            : "other";
-    }
-
-
-
 
     // =========================
     // LOAD RECIPES (HOME / SEARCH)
     // =========================
     public async Task LoadRecipesAsync(string query = "healthy")
     {
+        var cacheKey = $"recipes:list:query={query}";
+
+        // 1️ Try cache first
+        var (found, cached) =
+            await _cache.GetAsync<List<Recipe>>(cacheKey);
+
+        if (found && cached != null)
+        {
+            _allRecipes.Clear();
+            foreach (var r in cached)
+                _allRecipes.Add(r);
+
+            Debug.WriteLine("[CACHE] Loaded recipes from cache");
+            return;
+        }
+
+        // 2️ Cache miss → API
         try
         {
             var url =
@@ -150,16 +135,34 @@ public class ApiRecipeService : IRecipeService
                     MealType = NormalizeCategory(r.dishTypes, MealTypeMap),
                     Diet = NormalizeDiet(r.diets),
                     Cuisine = NormalizeCuisine(r.cuisines)
-
                 });
             }
+
+            // 3️ Save to cache
+            await _cache.SetAsync(
+                cacheKey,
+                _allRecipes.ToList(),
+                TimeSpan.FromHours(12));
+
+            Debug.WriteLine("[CACHE] Recipes saved to cache");
         }
         catch (HttpRequestException ex)
         {
             Debug.WriteLine($"[API ERROR] LoadRecipesAsync: {ex.Message}");
-            _allRecipes.Clear(); // fail gracefully
-        }
 
+            // 4️ Fallback to cache
+            var fallback =
+                await _cache.GetAsync<List<Recipe>>(cacheKey);
+
+            if (fallback.found && fallback.data != null)
+            {
+                _allRecipes.Clear();
+                foreach (var r in fallback.data)
+                    _allRecipes.Add(r);
+
+                Debug.WriteLine("[CACHE] Fallback to cached recipes");
+            }
+        }
     }
 
     // =========================
@@ -190,6 +193,19 @@ public class ApiRecipeService : IRecipeService
     // =========================
     public async Task<Recipe?> GetRecipeDetailsAsync(string recipeId)
     {
+        var cacheKey = $"recipes:details:id={recipeId}";
+
+        // Try cache first
+        var (found, cached) =
+            await _cache.GetAsync<Recipe>(cacheKey);
+
+        if (found && cached != null)
+        {
+            Debug.WriteLine("[CACHE] Loaded recipe details from cache");
+            return cached;
+        }
+
+        // Cache miss → API
         try
         {
             var url =
@@ -201,7 +217,7 @@ public class ApiRecipeService : IRecipeService
 
             if (dto == null) return null;
 
-            return new Recipe
+            var recipe = new Recipe
             {
                 Id = dto.id.ToString(),
                 Title = dto.title,
@@ -222,15 +238,30 @@ public class ApiRecipeService : IRecipeService
                 CarbsGrams = GetNutrient(dto.nutrition, "Carbohydrates"),
                 FatGrams = GetNutrient(dto.nutrition, "Fat")
             };
+
+            //  Save to cache
+            await _cache.SetAsync(
+                cacheKey,
+                recipe,
+                TimeSpan.FromDays(7));
+
+            Debug.WriteLine("[CACHE] Recipe details saved");
+            return recipe;
         }
         catch (HttpRequestException ex)
         {
             Debug.WriteLine($"[API ERROR] GetRecipeDetailsAsync: {ex.Message}");
-            return null;
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[UNEXPECTED ERROR] {ex.Message}");
+
+            // 4️⃣ Fallback
+            var fallback =
+                await _cache.GetAsync<Recipe>(cacheKey);
+
+            if (fallback.found)
+            {
+                Debug.WriteLine("[CACHE] Fallback recipe details");
+                return fallback.data;
+            }
+
             return null;
         }
     }
@@ -238,6 +269,55 @@ public class ApiRecipeService : IRecipeService
     // =========================
     // HELPER METHODS
     // =========================
+    private static string NormalizeCategory(
+        IEnumerable<string>? apiValues,
+        Dictionary<string, string> map)
+    {
+        var raw = apiValues?
+            .FirstOrDefault()?
+            .ToLowerInvariant()
+            .Trim();
+
+        if (string.IsNullOrEmpty(raw))
+            return "";
+
+        return map.TryGetValue(raw, out var normalized)
+            ? normalized
+            : raw;
+    }
+
+    private static string NormalizeDiet(IEnumerable<string>? diets)
+    {
+        if (diets == null) return "balanced";
+
+        foreach (var d in diets)
+        {
+            var key = d.ToLowerInvariant().Trim();
+            if (DietMap.TryGetValue(key, out var normalized))
+                return normalized;
+        }
+
+        return "balanced";
+    }
+
+    private static string NormalizeCuisine(IEnumerable<string>? cuisines)
+    {
+        if (cuisines == null || !cuisines.Any())
+            return "other";
+
+        var raw = cuisines
+            .FirstOrDefault()?
+            .ToLowerInvariant()
+            .Trim();
+
+        if (string.IsNullOrEmpty(raw))
+            return "other";
+
+        return CuisineMap.TryGetValue(raw, out var normalized)
+            ? normalized
+            : "other";
+    }
+
     private static int GetNutrient(Nutrition nutrition, string name)
     {
         return (int)(nutrition?.nutrients?
