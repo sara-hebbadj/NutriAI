@@ -223,7 +223,7 @@
                 <!-- Empty space for results -->
 <CollectionView x:Name="ResultsCollection"
                 Margin="20,10"
-                ItemsSource="{Binding SavedRecipes}"
+                ItemsSource="{Binding Results}"
                 SelectionMode="Single"
                 SelectionChanged="OnRecipeSelected">
 

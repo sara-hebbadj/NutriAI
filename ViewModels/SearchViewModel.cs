@@ -1,13 +1,18 @@
-﻿using NutriAI.Models;
+﻿using System.Collections.ObjectModel;
+using NutriAI.Models;
 using NutriAI.Services;
-using System.Collections.ObjectModel;
 
 namespace NutriAI.ViewModels;
 
 public class SearchViewModel
 {
-    private readonly IRecipeService _recipeService =
-        ServiceLocator.RecipeService;
+    private readonly IRecipeService _recipeService;
+
+    public SearchViewModel(IRecipeService recipeService)
+    {
+        _recipeService = recipeService;
+        AllRecipes = _recipeService.GetAllRecipes();
+    }
 
     // ========================
     // DATA
@@ -24,10 +29,7 @@ public class SearchViewModel
 
     private string? _searchQuery;
 
-    public SearchViewModel()
-    {
-        AllRecipes = _recipeService.GetAllRecipes();
-    }
+
 
     // ========================
     // SEARCH ENTRY POINT
@@ -48,6 +50,12 @@ public class SearchViewModel
         SelectedCuisine = null;
         ApplyAllFilters();
     }
+    public async Task InitializeAsync()
+    {
+        if (_recipeService is ApiRecipeService api)
+            await api.LoadRecipesAsync();
+    }
+
 
     // ========================
     // CENTRAL FILTER PIPELINE (SCORING)

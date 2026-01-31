@@ -7,11 +7,12 @@ public partial class HomePage : ContentPage
     // Strongly-typed ViewModel access
     private HomeViewModel VM => (HomeViewModel)BindingContext;
 
-    public HomePage()
+    public HomePage(HomeViewModel viewModel)
     {
         InitializeComponent();
-        BindingContext = new HomeViewModel();
+        BindingContext = viewModel;
     }
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();

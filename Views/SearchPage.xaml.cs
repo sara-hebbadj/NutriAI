@@ -7,13 +7,12 @@ public partial class SearchPage : ContentPage
 {
     private SearchViewModel VM => (SearchViewModel)BindingContext;
 
-    public SearchPage()
+    public SearchPage(SearchViewModel viewModel)
     {
         InitializeComponent();
-
-        BindingContext = new SearchViewModel();
-        ResultsCollection.ItemsSource = VM.Results;
+        BindingContext = viewModel;
     }
+
 
     // ========================
     // SEARCH
@@ -28,6 +27,12 @@ public partial class SearchPage : ContentPage
     {
         VM.ApplySearch(SearchEntry.Text);
     }
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await VM.InitializeAsync();
+    }
+
 
     // ========================
     // NAVIGATION

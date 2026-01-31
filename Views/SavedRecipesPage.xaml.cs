@@ -7,11 +7,12 @@ namespace NutriAI.Views;
 
 public partial class SavedRecipesPage : ContentPage
 {
-    public SavedRecipesPage()
+    public SavedRecipesPage(SavedRecipesViewModel viewModel)
     {
         InitializeComponent();
-        BindingContext = new SavedRecipesViewModel();
+        BindingContext = viewModel;
     }
+
 
     private async void OnRecipeSelected(object sender, SelectionChangedEventArgs e)
     {

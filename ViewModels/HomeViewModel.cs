@@ -7,8 +7,13 @@ namespace NutriAI.ViewModels;
 
 public class HomeViewModel : INotifyPropertyChanged
 {
-    private readonly IRecipeService _recipeService =
-        ServiceLocator.RecipeService;
+    private readonly IRecipeService _recipeService;
+
+    public HomeViewModel(IRecipeService recipeService)
+    {
+        _recipeService = recipeService;
+        AllRecipes = _recipeService.GetAllRecipes();
+    }
 
     // ========================
     // DATA SOURCES
@@ -25,10 +30,8 @@ public class HomeViewModel : INotifyPropertyChanged
 
     private string? _searchQuery;
 
-    public HomeViewModel()
-    {
-        AllRecipes = _recipeService.GetAllRecipes();
-    }
+
+
 
     // ========================
     // INITIAL LOAD

@@ -8,6 +8,7 @@ public partial class App : Application
     {
         InitializeComponent();
         _shell = shell;   // store injected shell
+
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

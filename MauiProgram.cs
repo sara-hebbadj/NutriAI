@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
-using NutriAI.Views;
 using NutriAI.ViewModels;
+using NutriAI.Views;
 
 namespace NutriAI;
 
-using NutriAI.Views;
+using NutriAI.Services;
 using NutriAI.ViewModels;
+using NutriAI.Views;
 
 public static class MauiProgram
 {
@@ -37,6 +38,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<DietaryPreferencesViewModel>();
         builder.Services.AddSingleton<AllergiesViewModel>();
         builder.Services.AddSingleton<AccountSettingsViewModel>();
+        builder.Services.AddTransient<RecipeDetailsViewModel>();
 
         // ----------------------------------------
         // REGISTER PAGES
@@ -53,8 +55,12 @@ public static class MauiProgram
         builder.Services.AddSingleton<AccountSettingsPage>();
         builder.Services.AddSingleton<AllergiesPage>();
 
-        // Recipe details should be transient, not global
-        builder.Services.AddTransient<RecipeDetailsPage>();
+        // ----------------------------------------
+        // REGISTER SERVICES
+        // ----------------------------------------
+        builder.Services.AddSingleton<IRecipeService, ApiRecipeService>();
+
+
 
 
 #if DEBUG

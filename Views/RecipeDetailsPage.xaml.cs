@@ -1,27 +1,48 @@
 using NutriAI.Models;
 using NutriAI.ViewModels;
 
+
 namespace NutriAI.Views;
 
 [QueryProperty(nameof(Recipe), "Recipe")]
 public partial class RecipeDetailsPage : ContentPage
 {
-    private Recipe _recipe;
+    private readonly RecipeDetailsViewModel _viewModel;
+    private Recipe? _pendingRecipe;
 
-    public Recipe Recipe
+    public RecipeDetailsPage(RecipeDetailsViewModel viewModel)
     {
-        get => _recipe;
+        InitializeComponent();
+        _viewModel = viewModel;
+        BindingContext = _viewModel;
+    }
+
+    public Recipe? Recipe
+    {
+        get => _pendingRecipe;
         set
         {
-            _recipe = value;
-            BindingContext = new RecipeDetailsViewModel(_recipe);
+            _pendingRecipe = value;
+
+            // Run async safely, catch exceptions so Android doesn't hard-crash
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                try
+                {
+                    if (_pendingRecipe != null)
+                        await _viewModel.SetRecipeAsync(_pendingRecipe);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("RecipeDetailsPage SetRecipeAsync crashed:");
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    await DisplayAlert("Error", ex.Message, "OK");
+                }
+            });
         }
     }
 
-    public RecipeDetailsPage()
-    {
-        InitializeComponent();
-    }
+
 
     void OnSmallFont(object sender, EventArgs e)
     {
@@ -48,13 +69,6 @@ public partial class RecipeDetailsPage : ContentPage
 
         Application.Current.Resources["TitleFontSize"] =
             Application.Current.Resources["TitleLarge"];
-    }
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-
-        if (BindingContext is RecipeDetailsViewModel vm)
-            await vm.LoadDetailsAsync();
     }
 
 
