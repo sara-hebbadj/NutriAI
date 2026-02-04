@@ -10,6 +10,16 @@ namespace NutriAI.Views
             InitializeComponent();
             BindingContext = vm;
         }
+
+        // ? THIS is what was missing
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+
+            if (BindingContext is ProfileViewModel vm)
+                await vm.RefreshAsync();
+        }
+
         void OnSmallFont(object sender, EventArgs e)
         {
             Application.Current.Resources["BodyFontSize"] =
@@ -37,5 +47,4 @@ namespace NutriAI.Views
                 Application.Current.Resources["TitleLarge"];
         }
     }
-
 }

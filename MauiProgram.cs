@@ -6,6 +6,9 @@ namespace NutriAI;
 
 using NutriAI.Services;
 using NutriAI.Services.Caching;
+using NutriAI.Services.Interactions;
+using NutriAI.Services.Recommendation;
+using NutriAI.Services.Storage;
 using NutriAI.ViewModels;
 using NutriAI.Views;
 
@@ -61,7 +64,11 @@ public static class MauiProgram
         // ----------------------------------------
         builder.Services.AddSingleton<IRecipeService, ApiRecipeService>();
         builder.Services.AddSingleton<ICacheService, FileCacheService>();
-
+        builder.Services.AddSingleton<ISavedRecipeStore, FileSavedRecipeStore>();
+        builder.Services.AddSingleton<ISavedRecipeStore, FileSavedRecipeStore>();
+        builder.Services.AddSingleton<IUserPreferencesStore, FileUserPreferencesStore>();
+        builder.Services.AddSingleton<IUserInteractionService, SQLiteUserInteractionService>();
+        builder.Services.AddSingleton<IRecommendationService, RecommendationService>();
 
 
 

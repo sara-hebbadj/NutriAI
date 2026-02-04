@@ -2,16 +2,22 @@
 using System.ComponentModel;
 using NutriAI.Models;
 using NutriAI.Services;
+using NutriAI.Services.Recommendation;
 
 namespace NutriAI.ViewModels;
 
 public class HomeViewModel : INotifyPropertyChanged
 {
     private readonly IRecipeService _recipeService;
+    private readonly IRecommendationService _recommender;
 
-    public HomeViewModel(IRecipeService recipeService)
+    public HomeViewModel(
+        IRecipeService recipeService,
+        IRecommendationService recommender)
     {
         _recipeService = recipeService;
+        _recommender = recommender;
+
         AllRecipes = _recipeService.GetAllRecipes();
     }
 
@@ -29,9 +35,6 @@ public class HomeViewModel : INotifyPropertyChanged
     public string? SelectedCuisine { get; set; }
 
     private string? _searchQuery;
-
-
-
 
     // ========================
     // INITIAL LOAD
@@ -70,34 +73,39 @@ public class HomeViewModel : INotifyPropertyChanged
     }
 
     // ========================
-    // SCORING-BASED PIPELINE
+    // FILTER + AI RANKING PIPELINE
     // ========================
-    private void ApplyAllFilters()
+    private async void ApplyAllFilters()
     {
         FilteredRecipes.Clear();
 
-        var ranked = AllRecipes
+        // 1️⃣ Search + filter relevance
+        var filtered = AllRecipes
             .Select(r => new
             {
                 Recipe = r,
-                Score = CalculateScore(r)
+                FilterScore = CalculateScore(r)
             })
-            .Where(x => x.Score > 0)
-            .OrderByDescending(x => x.Score)
-            .Select(x => x.Recipe);
+            .Where(x => x.FilterScore > 0)
+            .Select(x => x.Recipe)
+            .ToList();
 
+        // 2️⃣ AI ranking (time decay + context)
+        var ranked = await _recommender.RankAsync(filtered);
+
+        // 3️⃣ Update UI
         foreach (var r in ranked)
             FilteredRecipes.Add(r);
     }
 
     // ========================
-    // SCORING FUNCTION
+    // FILTER RELEVANCE SCORE
     // ========================
     private int CalculateScore(Recipe r)
     {
         int score = 0;
 
-        // 🔍 Search relevance
+        // Search relevance
         if (!string.IsNullOrWhiteSpace(_searchQuery))
         {
             var q = _searchQuery.ToLowerInvariant();
@@ -111,38 +119,30 @@ public class HomeViewModel : INotifyPropertyChanged
                 score += 2;
         }
 
-        // 🍽 Meal type
+        // Meal type
         if (!string.IsNullOrWhiteSpace(SelectedMealType) &&
             r.MealType.Equals(SelectedMealType,
                 StringComparison.OrdinalIgnoreCase))
-        {
             score += 2;
-        }
 
-        // 🥗 Diet
+        // Diet
         if (!string.IsNullOrWhiteSpace(SelectedDiet) &&
             r.Diet.Equals(SelectedDiet,
                 StringComparison.OrdinalIgnoreCase))
-        {
             score += 2;
-        }
 
-        // 🌍 Cuisine
+        // Cuisine
         if (!string.IsNullOrWhiteSpace(SelectedCuisine) &&
             r.Cuisine.Equals(SelectedCuisine,
                 StringComparison.OrdinalIgnoreCase))
-        {
             score += 1;
-        }
 
-        // Default: show everything when no filters/search
+        // Default (no filters/search)
         if (string.IsNullOrWhiteSpace(_searchQuery) &&
             SelectedMealType == null &&
             SelectedDiet == null &&
             SelectedCuisine == null)
-        {
             score = 1;
-        }
 
         return score;
     }

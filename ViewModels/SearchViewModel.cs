@@ -92,7 +92,7 @@ public class SearchViewModel
     {
         int score = 0;
 
-        // 🔍 Search relevance
+        //  Search relevance
         if (!string.IsNullOrWhiteSpace(_searchQuery))
         {
             var q = _searchQuery.ToLowerInvariant();
@@ -106,7 +106,7 @@ public class SearchViewModel
                 score += 2;
         }
 
-        // 🍳 Meal Type
+        //  Meal Type
         if (!string.IsNullOrWhiteSpace(SelectedMealType) &&
             r.MealType.Equals(SelectedMealType,
                 StringComparison.OrdinalIgnoreCase))
@@ -114,7 +114,7 @@ public class SearchViewModel
             score += 2;
         }
 
-        // 🥗 Diet
+        //  Diet
         if (!string.IsNullOrWhiteSpace(SelectedDiet) &&
             r.Diet.Equals(SelectedDiet,
                 StringComparison.OrdinalIgnoreCase))
@@ -122,7 +122,7 @@ public class SearchViewModel
             score += 2;
         }
 
-        // 🌍 Cuisine (lighter weight)
+        //  Cuisine (lighter weight)
         if (!string.IsNullOrWhiteSpace(SelectedCuisine) &&
             r.Cuisine.Equals(SelectedCuisine,
                 StringComparison.OrdinalIgnoreCase))

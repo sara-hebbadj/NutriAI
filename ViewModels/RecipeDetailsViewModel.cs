@@ -2,12 +2,14 @@
 using System.Windows.Input;
 using NutriAI.Models;
 using NutriAI.Services;
+using NutriAI.Services.Interactions;
 
 namespace NutriAI.ViewModels;
 
 public class RecipeDetailsViewModel : INotifyPropertyChanged
 {
     private readonly IRecipeService _recipeService;
+    private readonly IUserInteractionService _interactionService;
 
     private Recipe _recipe;
     public Recipe Recipe
@@ -20,7 +22,10 @@ public class RecipeDetailsViewModel : INotifyPropertyChanged
         }
     }
 
+    private UserRecipeInteraction? _interaction;
+
     public ICommand ToggleSaveCommand { get; }
+    public ICommand CookCommand { get; }
 
     private bool _isSaved;
     public bool IsSaved
@@ -37,33 +42,60 @@ public class RecipeDetailsViewModel : INotifyPropertyChanged
     public string SaveButtonText =>
         IsSaved ? "Unsave Recipe" : "Save Recipe";
 
-    // ✅ DI constructor (ONLY constructor)
-    public RecipeDetailsViewModel(IRecipeService recipeService)
+    // =========================
+    // CONTEXTUAL HINT (OPTION A)
+    // =========================
+    public string? MealContextHint
     {
-        _recipeService = recipeService;
-        ToggleSaveCommand = new Command(ToggleSave);
+        get
+        {
+            if (_interaction == null ||
+                string.IsNullOrWhiteSpace(_interaction.LastUsedMealType))
+                return null;
+
+            return $"You usually cook this for {_interaction.LastUsedMealType}";
+        }
     }
 
-    // ✅ Called by Page when navigation data arrives
+    // =========================
+    // CONSTRUCTOR
+    // =========================
+    public RecipeDetailsViewModel(
+        IRecipeService recipeService,
+        IUserInteractionService interactionService)
+    {
+        _recipeService = recipeService;
+        _interactionService = interactionService;
+
+        ToggleSaveCommand = new Command(ToggleSave);
+        CookCommand = new Command(CookRecipe);
+    }
+
+    // =========================
+    // NAVIGATION ENTRY
+    // =========================
     public async Task SetRecipeAsync(Recipe recipe)
     {
         if (recipe == null)
             return;
 
-        try
-        {
-            Recipe = recipe;
-            IsSaved = _recipeService.IsRecipeSaved(recipe);
-            await LoadDetailsAsync();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine("RecipeDetailsViewModel SetRecipeAsync crashed:");
-            System.Diagnostics.Debug.WriteLine(ex.ToString());
-            throw; // rethrow so the Page catch can show it
-        }
+        Recipe = recipe;
+
+        // Record view (implicit signal)
+        await _interactionService.RecordViewAsync(recipe.Id);
+
+        // Load interaction for hint
+        _interaction = await _interactionService.GetAsync(recipe.Id);
+        OnPropertyChanged(nameof(MealContextHint));
+
+        IsSaved = _recipeService.IsRecipeSaved(recipe);
+
+        await LoadDetailsAsync();
     }
 
+    // =========================
+    // LOAD FULL DETAILS
+    // =========================
     public async Task LoadDetailsAsync()
     {
         if (Recipe == null)
@@ -72,8 +104,6 @@ public class RecipeDetailsViewModel : INotifyPropertyChanged
         if (_recipeService is ApiRecipeService api)
         {
             var fullRecipe = await api.GetRecipeDetailsAsync(Recipe.Id);
-
-            // fullRecipe could be null depending on your implementation
             if (fullRecipe == null)
                 return;
 
@@ -89,20 +119,63 @@ public class RecipeDetailsViewModel : INotifyPropertyChanged
         }
     }
 
-
-
-    private void ToggleSave()
+    // =========================
+    // SAVE / UNSAVE
+    // =========================
+    private async void ToggleSave()
     {
         if (IsSaved)
+        {
             _recipeService.UnsaveRecipe(Recipe);
+        }
         else
+        {
             _recipeService.SaveRecipe(Recipe);
+            await _interactionService.RecordSaveAsync(Recipe.Id);
+        }
 
         IsSaved = !IsSaved;
     }
 
+    // =========================
+    // COOK WITH MEAL SELECTION
+    // =========================
+    private async void CookRecipe()
+    {
+        if (Recipe == null)
+            return;
 
+        var action = await Shell.Current.DisplayActionSheet(
+            "What meal was this?",
+            "Cancel",
+            null,
+            "Breakfast",
+            "Lunch",
+            "Dinner",
+            "Snack");
 
+        if (action == null || action == "Cancel")
+            return;
+
+        var mealType = action.ToLowerInvariant();
+
+        await _interactionService.RecordCookAsync(
+            Recipe.Id,
+            mealType);
+
+        // Reload interaction so hint updates
+        _interaction = await _interactionService.GetAsync(Recipe.Id);
+        OnPropertyChanged(nameof(MealContextHint));
+
+        await Shell.Current.DisplayAlert(
+            "Logged",
+            $"Marked as cooked for {mealType} ✅",
+            "OK");
+    }
+
+    // =========================
+    // INotifyPropertyChanged
+    // =========================
     public event PropertyChangedEventHandler? PropertyChanged;
     private void OnPropertyChanged(string name) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

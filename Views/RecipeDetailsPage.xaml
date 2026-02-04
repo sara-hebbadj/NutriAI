@@ -87,6 +87,7 @@
                        TextColor="{DynamicResource PrimaryTextColor}"
                        SemanticProperties.HeadingLevel="Level1"/>
 
+
                 <!-- META INFO -->
                 <HorizontalStackLayout Spacing="20">
                     <Label Text="{Binding Recipe.CookingTimeMinutes, StringFormat='⏱ {0} min'}"
@@ -168,6 +169,18 @@
                  HeightRequest="50"
                  SemanticProperties.Description="Save or remove recipe"
                  SemanticProperties.Hint="Toggles saved state"/>
+                <!--I COOKED THIS BUTTON -->
+                <Button Text="I cooked this"
+                 Command="{Binding CookCommand}"
+                 BackgroundColor="{DynamicResource AccentGreen}"
+                 TextColor="White"
+                 CornerRadius="14"/>
+                <!-- Meal Context -->
+                <Label Text="{Binding MealContextHint}"
+                 IsVisible="{Binding MealContextHint}"
+                 FontSize="{DynamicResource BodyFontSize}"
+                  TextColor="{DynamicResource SecondaryTextColor}"
+                 HorizontalOptions="Start" />
 
 
 

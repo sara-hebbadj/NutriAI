@@ -87,15 +87,17 @@
                 <!-- Name + Goal -->
                 <VerticalStackLayout Spacing="4"
                                      VerticalOptions="Center">
-                    <Label Text="Sara Hebbadj"
-                           FontSize="{DynamicResource TitleFontSize}"
-                           FontAttributes="Bold"
-                           TextColor="{DynamicResource PrimaryTextColor}"/>
+                        <Label Text="{Binding Name}"
+                         FontSize="{DynamicResource TitleFontSize}"
+                         FontAttributes="Bold"
+                         TextColor="{DynamicResource PrimaryTextColor}"/>
 
-                    <Label Text="Weight Loss Goal • 1,800 cal/day"
-                           FontSize="{DynamicResource BodyFontSize}"
-                           TextColor="{DynamicResource SecondaryTextColor}"/>
-                </VerticalStackLayout>
+
+                        <Label Text="{Binding GoalSummary}"
+                         FontSize="{DynamicResource BodyFontSize}"
+                         TextColor="{DynamicResource SecondaryTextColor}"/>
+
+                    </VerticalStackLayout>
 
             </HorizontalStackLayout>
 
@@ -108,12 +110,13 @@
                         Padding="15,10"
                         StrokeShape="RoundRectangle 18">
                     <VerticalStackLayout HorizontalOptions="Center">
-                        <Label Text="12"
-                               FontSize="{DynamicResource TitleFontSize}"
-                               FontAttributes="Bold"
-                               TextColor="{DynamicResource AccentGreen}"
-                               HorizontalOptions="Center"/>
-                        <Label Text="Recipes Saved"
+                            <Label Text="{Binding RecipesSaved}"
+                             FontSize="{DynamicResource TitleFontSize}"
+                             FontAttributes="Bold"
+                             TextColor="{DynamicResource AccentGreen}"
+                             HorizontalOptions="Center"/>
+
+                            <Label Text="Recipes Saved"
                                FontSize="{DynamicResource BodyFontSize}"
                                TextColor="{DynamicResource AccentGreen}"
                                HorizontalOptions="Center"/>
@@ -126,12 +129,8 @@
                         StrokeShape="RoundRectangle 18"
                         Grid.Column="1">
                     <VerticalStackLayout HorizontalOptions="Center">
-                        <Label Text="28"
-                               FontSize="{DynamicResource TitleFontSize}"
-                               FontAttributes="Bold"
-                               TextColor="{DynamicResource AccentGreen}"
-                               HorizontalOptions="Center"/>
-                        <Label Text="Meals Logged"
+                            <Label Text="{Binding RecipesViewed}" />
+                            <Label Text="Meals Logged"
                                FontSize="{DynamicResource BodyFontSize}"
                                TextColor="{DynamicResource AccentGreen}"
                                HorizontalOptions="Center"/>
@@ -144,19 +143,34 @@
                         StrokeShape="RoundRectangle 18"
                         Grid.Column="2">
                     <VerticalStackLayout HorizontalOptions="Center">
-                        <Label Text="5.2"
-                               FontSize="{DynamicResource TitleFontSize}"
-                               FontAttributes="Bold"
-                               TextColor="{DynamicResource AccentGreen}"
-                               HorizontalOptions="Center"/>
-                        <Label Text="kg Lost"
-                               FontSize="{DynamicResource BodyFontSize}"
-                               TextColor="{DynamicResource AccentGreen}"
-                               HorizontalOptions="Center"/>
-                    </VerticalStackLayout>
-                </Border>
+                            <Label Text="{Binding WeightLost}"
+                             FontSize="{DynamicResource TitleFontSize}"
+                             FontAttributes="Bold"
+                       TextColor="{DynamicResource AccentGreen}"
+                             HorizontalOptions="Center"/>
+                            <Label Text="kg Lost"
+                            FontSize="{DynamicResource BodyFontSize}"
+                            TextColor="{DynamicResource AccentGreen}"
+                            HorizontalOptions="Center"/>
 
-            </Grid>
+                        </VerticalStackLayout>
+                </Border>
+                    <!-- Meals Cooked -->
+                    <Border BackgroundColor="{DynamicResource ChipBackground}"
+                        Padding="15,10"
+                        StrokeShape="RoundRectangle 18"
+                        Grid.Column="1">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label Text="{Binding MealsCooked}"  
+                                   FontSize="{DynamicResource TitleFontSize}"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="Meals Cooked"
+                               TextColor="{DynamicResource AccentGreen}"
+                               HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
 
 
             <!-- MENU LIST -->

@@ -21,10 +21,11 @@ public class RecipeService : IRecipeService
     // Holds SAVED recipes (favorites)
     private readonly ObservableCollection<Recipe> _savedRecipes = new();
 
+
     // ================= ALL RECIPES =================
     public RecipeService()
     {
-        // 🔑 LOAD MOCK DATA HERE
+        //  LOAD MOCK DATA HERE
         _allRecipes = MockRecipeService.All;
     }
 

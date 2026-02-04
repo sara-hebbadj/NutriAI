@@ -8,12 +8,8 @@ public partial class App : Application
     {
         InitializeComponent();
         _shell = shell;   // store injected shell
+        MainPage = new AppShell();
 
-    }
-
-    protected override Window CreateWindow(IActivationState? activationState)
-    {
-        return new Window(_shell);
     }
 
 }
