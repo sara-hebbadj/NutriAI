@@ -20,12 +20,14 @@ public class Recipe
 
     public List<string> Ingredients { get; set; } = new();
 
-    public List<string> Instructions { get; set; } = new();
+    public string? Instructions { get; set; }
 
     public string MealType { get; set; } = string.Empty;   // breakfast, lunch, dinner
     public string Diet { get; set; } = string.Empty;       // vegan, keto, etc.
     public string Cuisine { get; set; } = string.Empty;    // Italian, Asian, etc.
     public bool IsSaved { get; set; }
+    public List<string> RecommendationReasons { get; set; } = new();
+
 
 }
 

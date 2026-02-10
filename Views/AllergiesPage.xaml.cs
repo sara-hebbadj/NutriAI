@@ -1,11 +1,12 @@
 using NutriAI.ViewModels;
+
 namespace NutriAI.Views;
 
 public partial class AllergiesPage : ContentPage
 {
-    public AllergiesPage()
+    public AllergiesPage(AllergiesViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new AllergiesViewModel();
+        BindingContext = vm;
     }
 }

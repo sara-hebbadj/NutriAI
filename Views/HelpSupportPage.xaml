@@ -1,11 +1,40 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="NutriAI.Views.HelpSupportPage"
-             Title="HelpSupportPage">
-    <VerticalStackLayout Padding="20">
-        <Label Text="Need Help?" FontSize="{StaticResource TitleFontSize}" />
-        <Button Text="Contact Support" Command="{Binding ContactSupportCommand}" />
-    </VerticalStackLayout>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="NutriAI.Views.HelpSupportPage"
+    Title="Help and Support"
+    BackgroundColor="{DynamicResource PageBackground}">
 
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="24">
+
+            <Label Text="About NutriAI"
+                   FontSize="{DynamicResource TitleFontSize}"
+                   FontAttributes="Bold" />
+
+            <Label Text="NutriAI is a personalised recipe recommendation app that adapts to your preferences, dietary restrictions, and cooking habits."
+                   FontSize="{DynamicResource BodyFontSize}" />
+
+            <Label Text="How recommendations work"
+                   FontAttributes="Bold" />
+
+            <Label Text="Recommendations are based on your saved recipes, meals you cook, dietary preferences, allergies, and the time of day."
+                   FontSize="{DynamicResource BodyFontSize}" />
+
+            <Label Text="Data and privacy"
+                   FontAttributes="Bold" />
+
+            <Label Text="Your data is stored locally on your device. NutriAI does not share or upload personal data."
+                   FontSize="{DynamicResource BodyFontSize}" />
+
+            <Label Text="Need help?"
+                   FontAttributes="Bold" />
+
+            <Label Text="If something doesn’t look right, review your preferences or try restarting the app."
+                   FontSize="{DynamicResource BodyFontSize}"
+                   TextColor="{DynamicResource SecondaryTextColor}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

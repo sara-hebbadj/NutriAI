@@ -1,11 +1,77 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="NutriAI.Views.DietaryPreferencesPage"
-             Title="DietaryPreferencesPage">
-    <VerticalStackLayout Padding="20">
-        <Label Text="Dietary Preference" FontSize="{StaticResource TitleFontSize}" />
-        <Entry Text="{Binding Preference}" />
-        <Button Text="Save" Command="{Binding SaveCommand}" />
-    </VerticalStackLayout>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="NutriAI.Views.DietaryPreferencesPage"
+    Title="Dietary Preferences"
+    BackgroundColor="{DynamicResource PageBackground}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <Label
+                Text="Dietary preferences"
+                FontSize="{DynamicResource TitleFontSize}"
+                FontAttributes="Bold" />
+
+            <Label
+                Text="Used to filter and prioritise recipes."
+                FontSize="{DynamicResource BodyFontSize}"
+                TextColor="{DynamicResource SecondaryTextColor}" />
+
+            <!-- OPTIONS -->
+            <VerticalStackLayout Spacing="12">
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <HorizontalStackLayout>
+                        <CheckBox IsChecked="{Binding IsVegetarian}" />
+                        <Label Text="Vegetarian" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <HorizontalStackLayout>
+                        <CheckBox IsChecked="{Binding IsVegan}" />
+                        <Label Text="Vegan" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <HorizontalStackLayout>
+                        <CheckBox IsChecked="{Binding IsHalal}" />
+                        <Label Text="Halal" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <HorizontalStackLayout>
+                        <CheckBox IsChecked="{Binding IsGlutenFree}" />
+                        <Label Text="Gluten-free" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <HorizontalStackLayout>
+                        <CheckBox IsChecked="{Binding IsDairyFree}" />
+                        <Label Text="Dairy-free" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <HorizontalStackLayout>
+                        <CheckBox IsChecked="{Binding IsKeto}" />
+                        <Label Text="Keto" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+
+            <Label
+                Text="Preferences are saved automatically."
+                FontSize="{DynamicResource BodyFontSize}"
+                TextColor="{DynamicResource SecondaryTextColor}"
+                Margin="0,16,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

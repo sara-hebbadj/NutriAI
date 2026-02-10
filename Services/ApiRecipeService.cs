@@ -170,9 +170,14 @@ public class ApiRecipeService : IRecipeService
                 CookingTimeMinutes = dto.readyInMinutes,
                 Ingredients = dto.extendedIngredients?
                     .Select(i => i.original).ToList() ?? new(),
-                Instructions = dto.analyzedInstructions?
-                    .FirstOrDefault()?.steps?
-                    .Select(s => s.step).ToList() ?? new(),
+                Instructions = string.Join(
+    "\n\n",
+    dto.analyzedInstructions?
+        .FirstOrDefault()?.steps?
+        .Select(s => s.step)
+        ?? Enumerable.Empty<string>()
+),
+
                 Calories = GetNutrient(dto.nutrition, "Calories"),
                 ProteinGrams = GetNutrient(dto.nutrition, "Protein"),
                 CarbsGrams = GetNutrient(dto.nutrition, "Carbohydrates"),

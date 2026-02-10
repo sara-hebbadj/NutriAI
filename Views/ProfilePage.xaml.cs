@@ -11,7 +11,7 @@ namespace NutriAI.Views
             BindingContext = vm;
         }
 
-        // ? THIS is what was missing
+
         protected override async void OnAppearing()
         {
             base.OnAppearing();
@@ -19,6 +19,7 @@ namespace NutriAI.Views
             if (BindingContext is ProfileViewModel vm)
                 await vm.RefreshAsync();
         }
+
 
         void OnSmallFont(object sender, EventArgs e)
         {

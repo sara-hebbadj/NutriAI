@@ -1,11 +1,70 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="NutriAI.Views.AllergiesPage"
-             Title="AllergiesPage">
-    <VerticalStackLayout Padding="20">
-        <Label Text="Allergies" FontSize="{StaticResource TitleFontSize}" />
-        <Editor Text="{Binding Allergies}" AutoSize="TextChanges" />
-        <Button Text="Save" Command="{Binding SaveCommand}" />
-    </VerticalStackLayout>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="NutriAI.Views.AllergiesPage"
+    Title="Allergies"
+    BackgroundColor="{DynamicResource PageBackground}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <Label
+                Text="Allergies"
+                FontSize="{DynamicResource TitleFontSize}"
+                FontAttributes="Bold" />
+
+            <Label
+                Text="Recipes containing these ingredients will be excluded."
+                FontSize="{DynamicResource BodyFontSize}"
+                TextColor="{DynamicResource SecondaryTextColor}" />
+
+            <!-- OPTIONS -->
+            <VerticalStackLayout Spacing="12">
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <HorizontalStackLayout>
+                        <CheckBox IsChecked="{Binding HasNuts}" />
+                        <Label Text="Nuts" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <HorizontalStackLayout>
+                        <CheckBox IsChecked="{Binding HasDairy}" />
+                        <Label Text="Dairy" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <HorizontalStackLayout>
+                        <CheckBox IsChecked="{Binding HasEggs}" />
+                        <Label Text="Eggs" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <HorizontalStackLayout>
+                        <CheckBox IsChecked="{Binding HasShellfish}" />
+                        <Label Text="Shellfish" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <HorizontalStackLayout>
+                        <CheckBox IsChecked="{Binding HasGluten}" />
+                        <Label Text="Gluten" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+
+            <Label
+                Text="Preferences are saved automatically."
+                FontSize="{DynamicResource BodyFontSize}"
+                TextColor="{DynamicResource SecondaryTextColor}"
+                Margin="0,16,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

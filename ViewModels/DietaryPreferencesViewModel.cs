@@ -1,27 +1,89 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
+using System.ComponentModel;
+using NutriAI.Models;
+using NutriAI.Services.Storage;
 
 namespace NutriAI.ViewModels;
 
-public class DietaryPreferencesViewModel : BaseViewModel
+public class DietaryPreferencesViewModel : INotifyPropertyChanged
 {
-    private string _preference;
-    public string Preference
+    private readonly IUserPreferencesStore _store;
+    private UserPreferences _preferences = new();
+
+    public DietaryPreferencesViewModel(IUserPreferencesStore store)
     {
-        get => _preference;
-        set => SetProperty(ref _preference, value);
+        _store = store;
+        LoadAsync();
     }
 
-    public ICommand SaveCommand { get; }
-
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-    public DietaryPreferencesViewModel()
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+    // =========================
+    // CHECKBOX BINDINGS
+    // =========================
+    public bool IsVegetarian
     {
-        Preference = "Vegetarian";
+        get => _preferences.DietaryPreferences.Contains("vegetarian");
+        set => SetPreference("vegetarian", value);
+    }
 
-        SaveCommand = new Command(async () =>
-        {
-            await Shell.Current.DisplayAlert("Saved", "Dietary preference updated.", "OK");
-        });
+    public bool IsVegan
+    {
+        get => _preferences.DietaryPreferences.Contains("vegan");
+        set => SetPreference("vegan", value);
+    }
+
+    public bool IsHalal
+    {
+        get => _preferences.DietaryPreferences.Contains("halal");
+        set => SetPreference("halal", value);
+    }
+
+    public bool IsGlutenFree
+    {
+        get => _preferences.DietaryPreferences.Contains("gluten-free");
+        set => SetPreference("gluten-free", value);
+    }
+
+    public bool IsDairyFree
+    {
+        get => _preferences.DietaryPreferences.Contains("dairy-free");
+        set => SetPreference("dairy-free", value);
+    }
+
+    public bool IsKeto
+    {
+        get => _preferences.DietaryPreferences.Contains("keto");
+        set => SetPreference("keto", value);
+    }
+
+    // =========================
+    // LOAD / SAVE
+    // =========================
+    private async void LoadAsync()
+    {
+        _preferences = await _store.LoadAsync() ?? new UserPreferences();
+        OnAllPropertiesChanged();
+    }
+
+    private async void SetPreference(string key, bool enabled)
+    {
+        if (enabled && !_preferences.DietaryPreferences.Contains(key))
+            _preferences.DietaryPreferences.Add(key);
+
+        if (!enabled && _preferences.DietaryPreferences.Contains(key))
+            _preferences.DietaryPreferences.Remove(key);
+
+        await _store.SaveAsync(_preferences);
+        OnAllPropertiesChanged();
+    }
+
+    // =========================
+    // INotifyPropertyChanged
+    // =========================
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void OnAllPropertiesChanged()
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
     }
 }

@@ -1,28 +1,52 @@
 ﻿using System.Windows.Input;
+using NutriAI.Models;
+using NutriAI.Services.Storage;
 
 namespace NutriAI.ViewModels;
 
-public class HealthGoalsViewModel : BaseViewModel
+public class HealthGoalsViewModel
 {
-    private string _goal;
-    public string Goal
-    {
-        get => _goal;
-        set => SetProperty(ref _goal, value);
-    }
+    private readonly IUserPreferencesStore _store;
+
+    public bool IsLoseWeight { get; set; }
+    public bool IsMaintain { get; set; }
+    public bool IsGainMuscle { get; set; }
+
+    public string? DailyCalories { get; set; }
 
     public ICommand SaveCommand { get; }
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-    public HealthGoalsViewModel()
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+    public HealthGoalsViewModel(IUserPreferencesStore store)
     {
-        Goal = "Lose weight"; // default or loaded from storage
+        _store = store;
+        SaveCommand = new Command(async () => await SaveAsync());
+        LoadAsync();
+    }
 
-        SaveCommand = new Command(async () =>
-        {
-            // Save logic here
-            await Shell.Current.DisplayAlert("Saved", "Your health goal has been updated.", "OK");
-        });
+    private async void LoadAsync()
+    {
+        var prefs = await _store.LoadAsync();
+        if (prefs == null) return;
+
+        IsLoseWeight = prefs.Goal == "lose weight";
+        IsMaintain = prefs.Goal == "maintain";
+        IsGainMuscle = prefs.Goal == "gain muscle";
+
+        DailyCalories = prefs.DailyCalorieTarget?.ToString();
+    }
+
+    private async Task SaveAsync()
+    {
+        var prefs = await _store.LoadAsync() ?? new UserPreferences();
+
+        prefs.Goal =
+            IsLoseWeight ? "lose weight" :
+            IsGainMuscle ? "gain muscle" :
+            "maintain";
+
+        if (int.TryParse(DailyCalories, out var calories))
+            prefs.DailyCalorieTarget = calories;
+
+        await _store.SaveAsync(prefs);
     }
 }

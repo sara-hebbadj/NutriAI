@@ -4,9 +4,9 @@ namespace NutriAI.Views;
 
 public partial class HealthGoalsPage : ContentPage
 {
-    public HealthGoalsPage()
+    public HealthGoalsPage(HealthGoalsViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new ViewModels.HealthGoalsViewModel();
+        BindingContext = vm;
     }
 }

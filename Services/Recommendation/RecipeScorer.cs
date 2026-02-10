@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NutriAI.Models;
+using System.Diagnostics;
+
 
 namespace NutriAI.Services.Recommendation;
 
@@ -12,36 +12,336 @@ public static class RecipeScorer
     public static double Score(
         Recipe recipe,
         UserRecipeInteraction interaction,
-        MealContext context)
+        MealContext context,
+        UserPreferences prefs)
     {
-        // 1) Strength of implicit feedback
+        // =====================================================
+        // 1️⃣ HARD EXCLUSIONS (SAFETY & ETHICS)
+        // =====================================================
+        if (ViolatesAllergies(recipe, prefs)) return 0.0;
+        if (ViolatesHalal(recipe, prefs)) return 0.0;
+        if (ViolatesVegan(recipe, prefs)) return 0.0;
+        if (ViolatesVegetarian(recipe, prefs)) return 0.0;
+        if (ViolatesGlutenFree(recipe, prefs)) return 0.0;
+        if (ViolatesDairyFree(recipe, prefs)) return 0.0;
+
+        // =====================================================
+        // 2️⃣ BASELINE + IMPLICIT FEEDBACK
+        // =====================================================
         var baseScore =
-              0.1 * interaction.ViewCount
+              0.5
+            + 0.1 * interaction.ViewCount
             + 0.6 * interaction.SaveCount
             + 1.2 * interaction.CookCount;
 
-        // 2) Time decay (prefer recent cooking; fall back to recent viewing)
+        // =====================================================
+        // 3️⃣ TIME DECAY
+        // =====================================================
         var lastEvent = interaction.LastCookedAt ?? interaction.LastViewedAt;
         var recencyWeight = TimeDecay.Compute(lastEvent, halfLifeDays: 7);
 
-        // 3) Context boost: if recipe meal type matches current time-of-day
+        // =====================================================
+        // 4️⃣ CONTEXT AWARENESS
+        // =====================================================
         var contextBoost = 1.0;
         var currentMealType = ContextHelper.ToMealTypeString(context);
 
         if (!string.IsNullOrWhiteSpace(recipe.MealType) &&
             recipe.MealType.Equals(currentMealType, StringComparison.OrdinalIgnoreCase))
-        {
-            contextBoost *= 1.25; // boost breakfast recipes in morning, etc.
-        }
+            contextBoost *= 1.25;
 
-        // 4) Personal context boost: if user last cooked this recipe as this meal type
         if (!string.IsNullOrWhiteSpace(interaction.LastUsedMealType) &&
             interaction.LastUsedMealType.Equals(currentMealType, StringComparison.OrdinalIgnoreCase))
-        {
             contextBoost *= 1.15;
+
+        // =====================================================
+        // 5️⃣ SOFT CONSTRAINTS
+        // =====================================================
+        var ketoWeight = ComputeKetoWeight(recipe, prefs);
+        var healthGoalWeight = ComputeHealthGoalWeight(recipe, prefs);
+
+        return baseScore
+             * recencyWeight
+             * contextBoost
+             * ketoWeight
+             * healthGoalWeight;
+    }
+
+    // =====================================================
+    // HARD CONSTRAINTS
+    // =====================================================
+
+    private static bool ViolatesHalal(Recipe recipe, UserPreferences prefs)
+    {
+        if (!prefs.DietaryPreferences.Contains("halal"))
+            return false;
+
+        return ContainsAny(recipe, PorkKeywords);
+    }
+
+    private static bool ViolatesVegan(Recipe recipe, UserPreferences prefs)
+    {
+        if (!prefs.DietaryPreferences.Contains("vegan"))
+            return false;
+
+        return ContainsAny(recipe, MeatKeywords)
+            || ContainsAny(recipe, FishKeywords)
+            || ContainsAny(recipe, DairyKeywords)
+            || ContainsAny(recipe, EggKeywords);
+    }
+
+    private static bool ViolatesVegetarian(Recipe recipe, UserPreferences prefs)
+    {
+        if (!prefs.DietaryPreferences.Contains("vegetarian"))
+            return false;
+
+        return ContainsAny(recipe, MeatKeywords)
+            || ContainsAny(recipe, FishKeywords);
+    }
+
+
+    private static bool ViolatesGlutenFree(Recipe recipe, UserPreferences prefs)
+    {
+        if (!prefs.DietaryPreferences.Contains("gluten-free"))
+            return false;
+
+        return ContainsAny(recipe, GlutenKeywords);
+    }
+
+
+    private static bool ViolatesDairyFree(Recipe recipe, UserPreferences prefs)
+    {
+        if (!prefs.DietaryPreferences.Contains("dairy-free"))
+            return false;
+
+        return ContainsAny(recipe, DairyKeywords);
+    }
+
+
+   
+    private static bool ViolatesAllergies(Recipe recipe, UserPreferences prefs)
+    {
+        Debug.WriteLine(
+        $"[ALLERGY CHECK] Allergies = {string.Join(", ", prefs.Allergies)} | Recipe = {recipe.Title}");
+
+        foreach (var rawAllergy in prefs.Allergies)
+        {
+            var allergy = Normalize(rawAllergy);
+
+            if (allergy.Contains("nut") && ContainsAny(recipe, NutKeywords))
+                return true;
+
+            if (allergy.Contains("dairy") && ContainsAny(recipe, DairyKeywords))
+                return true;
+
+            if (allergy.Contains("egg") && ContainsAny(recipe, EggKeywords))
+                return true;
+
+            if (allergy.Contains("shellfish") && ContainsAny(recipe, ShellfishKeywords))
+                return true;
+
+            if (allergy.Contains("gluten") && ContainsAny(recipe, GlutenKeywords))
+                return true;
         }
 
-        return baseScore * recencyWeight * contextBoost;
+        return false;
     }
-}
 
+
+    // =====================================================
+    // SOFT CONSTRAINTS
+    // =====================================================
+
+    private static double ComputeKetoWeight(Recipe recipe, UserPreferences prefs)
+    {
+        if (!prefs.DietaryPreferences.Contains("keto"))
+            return 1.0;
+
+        return recipe.CarbsGrams <= 20 ? 1.3 : 0.4;
+    }
+
+    private static double ComputeHealthGoalWeight(Recipe recipe, UserPreferences prefs)
+    {
+        if (string.IsNullOrWhiteSpace(prefs.Goal))
+            return 1.0;
+
+        return prefs.Goal switch
+        {
+            "lose weight" when prefs.DailyCalorieTarget != null &&
+                               recipe.Calories <= prefs.DailyCalorieTarget
+                => 1.25,
+
+            "lose weight" => 0.8,
+
+            "gain muscle" when recipe.ProteinGrams >= 25
+                => 1.3,
+
+            "gain muscle" => 0.9,
+
+            _ => 1.0
+        };
+    }
+
+    // =====================================================
+    // INGREDIENT / TITLE SCANNING
+    // =====================================================
+
+    private static bool ContainsAny(Recipe recipe, IEnumerable<string> keywords)
+    {
+        var tokens = new HashSet<string>();
+
+        void AddTokensFromText(string? text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return;
+
+            var cleaned = Normalize(text);
+            foreach (var t in cleaned.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                tokens.Add(t);
+        }
+
+        void AddTokensFromList(IEnumerable<string>? texts)
+        {
+            if (texts == null) return;
+            foreach (var t in texts)
+                AddTokensFromText(t);
+        }
+
+        // TITLE
+        AddTokensFromText(recipe.Title);
+
+        // INGREDIENTS
+        AddTokensFromList(recipe.Ingredients);
+
+ 
+
+
+
+        // NORMALIZE + TOKENIZE KEYWORDS
+        foreach (var keyword in keywords)
+        {
+            var normalized = Normalize(keyword);
+            foreach (var k in normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (tokens.Contains(k))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+
+
+
+
+    private static string Normalize(string text)
+    {
+        return text
+            .ToLowerInvariant()
+            .Replace("-", " ")
+            .Replace("_", " ")
+            .Replace(",", " ")
+            .Replace(".", " ")
+            .Replace("(", " ")
+            .Replace(")", " ")
+            .Replace(";", " ")
+            .Replace(":", " ");
+    }
+
+
+
+    // =====================================================
+    // KEYWORD GROUPS (EXPANDED)
+    // =====================================================
+
+    private static readonly string[] PorkKeywords =
+    {
+        "pork", "pig", "hog",
+        "bacon", "ham", "prosciutto", "salami",
+        "pepperoni", "pancetta", "guanciale",
+        "lard", "gelatin", "chorizo", "hot dog"
+    };
+
+    private static readonly string[] MeatKeywords =
+    {
+        "beef", "veal", "lamb", "mutton",
+        "chicken", "turkey", "duck",
+        "pork", "bacon", "ham",
+        "sausage", "steak", "ribs",
+        "mince", "ground beef",
+        "meatball", "burger", "patty",
+        "broth", "bone broth", "stock"
+    };
+
+    private static readonly string[] FishKeywords =
+    {
+        "fish", "seafood",
+        "salmon", "tuna", "cod", "haddock",
+        "tilapia", "anchovy", "sardine",
+        "shrimp", "prawn", "crab",
+        "lobster", "scallop", "clam",
+        "mussel", "oyster", "fish sauce"
+    };
+
+    private static readonly string[] NutKeywords =
+    {
+        "nut", "nuts",
+        "peanut", "peanuts", "peanut butter",
+        "almond", "almonds", "almond milk",
+        "cashew", "cashews",
+        "pistachio", "pistachios",
+        "walnut", "walnuts",
+        "hazelnut", "hazelnuts",
+        "pecan", "pecans",
+        "macadamia", "marzipan", "praline"
+    };
+
+    private static readonly string[] DairyKeywords =
+    {
+        "milk", "cream", "butter", "ghee",
+        "cheese", "cheddar", "mozzarella",
+        "parmesan", "feta", "ricotta",
+        "yogurt", "curd",
+        "whey", "casein", "lactose",
+        "milk powder", "condensed milk",
+        "ice cream", "custard"
+    };
+
+    private static readonly string[] EggKeywords =
+    {
+    "egg",
+    "eggs",
+    "yolk",
+    "yolks",
+    "eggwhite",
+    "eggwhites",
+    "albumen",
+    "mayonnaise",
+    "aioli",
+    "meringue"
+};
+
+
+
+    private static readonly string[] ShellfishKeywords =
+    {
+        "shrimp", "prawn",
+        "crab", "lobster",
+        "scallop", "clam",
+        "mussel", "oyster"
+    };
+
+    private static readonly string[] GlutenKeywords =
+    {
+        "wheat", "barley", "rye",
+        "flour", "white flour",
+        "bread", "bun", "roll",
+        "pasta", "spaghetti", "penne",
+        "noodle", "ramen", "udon",
+        "couscous", "bulgur",
+        "breadcrumbs", "panko",
+        "cracker", "crouton",
+        "soy sauce", "teriyaki",
+        "malt", "seitan"
+    };
+}

@@ -11,7 +11,16 @@ public class ProfileViewModel : BaseViewModel
     private readonly IUserPreferencesStore _preferencesStore;
     private readonly IUserInteractionService _interactionService;
 
-    public string Name => "Sara Hebbadj";
+    private string _name = "User";
+    public string Name
+    {
+        get => _name;
+        private set
+        {
+            _name = value;
+            OnPropertyChanged();
+        }
+    }
 
     private string _goalSummary = "No goal set yet";
     public string GoalSummary
@@ -86,6 +95,10 @@ public class ProfileViewModel : BaseViewModel
         GoalSummary = string.IsNullOrEmpty(preferences.Goal)
             ? "No goal set yet"
             : $"{preferences.Goal} • {preferences.DailyCalorieTarget ?? 0} cal/day";
+        Name = string.IsNullOrWhiteSpace(preferences.Name)
+            ? "User"
+            : preferences.Name;
+
         // ✅ Meals Cooked
         MealsCooked = interactions.Sum(i => i.CookCount);
 

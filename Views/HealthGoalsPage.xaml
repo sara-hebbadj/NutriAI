@@ -1,22 +1,74 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="NutriAI.Views.HealthGoalsPage"
-             Title="HealthGoals">
-    <VerticalStackLayout Padding="20">
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="NutriAI.Views.HealthGoalsPage"
+    Title="Health Goals"
+    BackgroundColor="{DynamicResource PageBackground}">
 
-        <Label 
-        Text="Your Health Goal"
-        FontSize="{StaticResource TitleFontSize}"
-        Margin="0,0,0,10" />
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="24">
 
-        <Entry 
-        Text="{Binding Goal}"
-        Placeholder="Enter your goal" />
+            <!-- TITLE -->
+            <Label
+                Text="Your goal"
+                FontSize="{DynamicResource TitleFontSize}"
+                FontAttributes="Bold"
+                TextColor="{DynamicResource PrimaryTextColor}" />
 
-        <Button 
-        Text="Save"
-        Command="{Binding SaveCommand}" />
+            <Label
+                Text="This helps NutriAI personalise calories and protein targets."
+                FontSize="{DynamicResource BodyFontSize}"
+                TextColor="{DynamicResource SecondaryTextColor}" />
 
-    </VerticalStackLayout>
+            <!-- GOAL OPTIONS -->
+            <VerticalStackLayout Spacing="12">
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <RadioButton Content="Lose weight"
+                                 GroupName="Goal"
+                                 IsChecked="{Binding IsLoseWeight}" />
+                </Border>
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <RadioButton Content="Maintain weight"
+                                 GroupName="Goal"
+                                 IsChecked="{Binding IsMaintain}" />
+                </Border>
+
+                <Border Style="{DynamicResource CardStyle}">
+                    <RadioButton Content="Gain muscle"
+                                 GroupName="Goal"
+                                 IsChecked="{Binding IsGainMuscle}" />
+                </Border>
+
+            </VerticalStackLayout>
+
+            <!-- CALORIES -->
+            <Label
+                Text="Daily calorie target (optional)"
+                FontAttributes="Bold"
+                Margin="0,12,0,0" />
+
+            <Entry
+                Text="{Binding DailyCalories}"
+                TextColor="{DynamicResource PrimaryTextColor}" 
+                Keyboard="Numeric"
+                Placeholder="e.g. 1800"
+                BackgroundColor="{DynamicResource CardBackground}"
+                HeightRequest="48"
+                SemanticProperties.Hint="Optional daily calorie target" />
+
+            <!-- SAVE -->
+            <Button
+                Text="Save"
+                Command="{Binding SaveCommand}"
+                BackgroundColor="{DynamicResource AccentGreen}"
+                TextColor="White"
+                CornerRadius="16"
+                HeightRequest="50"
+                Margin="0,20,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

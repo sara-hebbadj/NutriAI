@@ -3,23 +3,31 @@ using System.ComponentModel;
 using NutriAI.Models;
 using NutriAI.Services;
 using NutriAI.Services.Recommendation;
+using NutriAI.Services.Storage;
 
 namespace NutriAI.ViewModels;
+
+
 
 public class HomeViewModel : INotifyPropertyChanged
 {
     private readonly IRecipeService _recipeService;
     private readonly IRecommendationService _recommender;
+    private readonly IUserPreferencesStore _preferencesStore;
+
 
     public HomeViewModel(
         IRecipeService recipeService,
-        IRecommendationService recommender)
+        IRecommendationService recommender,
+        IUserPreferencesStore preferencesStore)
     {
         _recipeService = recipeService;
         _recommender = recommender;
+        _preferencesStore = preferencesStore;
 
         AllRecipes = _recipeService.GetAllRecipes();
     }
+
 
     // ========================
     // DATA SOURCES
@@ -91,7 +99,11 @@ public class HomeViewModel : INotifyPropertyChanged
             .ToList();
 
         // 2️⃣ AI ranking (time decay + context)
-        var ranked = await _recommender.RankAsync(filtered);
+        var preferences = await _preferencesStore.LoadAsync()
+                   ?? new UserPreferences();
+
+        var ranked = await _recommender.RankAsync(filtered, preferences);
+
 
         // 3️⃣ Update UI
         foreach (var r in ranked)

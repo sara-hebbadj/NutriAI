@@ -142,22 +142,19 @@
                 </CollectionView>
 
                 <!-- INSTRUCTIONS -->
+                <!-- INSTRUCTIONS -->
                 <Label Text="Instructions"
-                       FontSize="{DynamicResource TitleFontSize}"
-                       FontAttributes="Bold"
-                       TextColor="{DynamicResource PrimaryTextColor}"
-                       SemanticProperties.HeadingLevel="Level2"/>
+       FontSize="{DynamicResource TitleFontSize}"
+       FontAttributes="Bold"
+       TextColor="{DynamicResource PrimaryTextColor}"
+       SemanticProperties.HeadingLevel="Level2"/>
 
-                <CollectionView ItemsSource="{Binding Recipe.Instructions}"
-                                SelectionMode="None">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Label Text="{Binding}"
-                                   FontSize="{DynamicResource BodyFontSize}"
-                                   TextColor="{DynamicResource SecondaryTextColor}"/>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                <Label
+    Text="{Binding Recipe.Instructions}"
+    FontSize="{DynamicResource BodyFontSize}"
+    TextColor="{DynamicResource SecondaryTextColor}"
+    LineBreakMode="WordWrap" />
+
 
                 <!-- SAVE BUTTON -->
                 <Button
@@ -182,6 +179,34 @@
                   TextColor="{DynamicResource SecondaryTextColor}"
                  HorizontalOptions="Start" />
 
+                <!-- WHY THIS RECIPE WAS RECOMMENDED -->
+                <VerticalStackLayout
+    Padding="12"
+    Spacing="6"
+    BackgroundColor="{DynamicResource CardBackground}"
+    IsVisible="{Binding Recipe.RecommendationReasons}">
+
+                    <Label
+        Text="Why this recipe was recommended"
+        FontAttributes="Bold"
+        FontSize="{DynamicResource BodyFontSize}"
+        TextColor="{DynamicResource PrimaryTextColor}" />
+
+                    <CollectionView
+        ItemsSource="{Binding Recipe.RecommendationReasons}"
+        SelectionMode="None">
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Label
+                    Text="{Binding ., StringFormat='• {0}'}"
+                    FontSize="{DynamicResource BodyFontSize}"
+                    TextColor="{DynamicResource SecondaryTextColor}" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+
+                    </CollectionView>
+                </VerticalStackLayout>
 
 
             </VerticalStackLayout>

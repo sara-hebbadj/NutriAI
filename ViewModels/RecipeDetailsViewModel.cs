@@ -3,6 +3,8 @@ using System.Windows.Input;
 using NutriAI.Models;
 using NutriAI.Services;
 using NutriAI.Services.Interactions;
+using NutriAI.Services.Storage;
+using NutriAI.Services.Recommendation;
 
 namespace NutriAI.ViewModels;
 
@@ -60,16 +62,21 @@ public class RecipeDetailsViewModel : INotifyPropertyChanged
     // =========================
     // CONSTRUCTOR
     // =========================
+    private readonly IUserPreferencesStore _preferencesStore;
+
     public RecipeDetailsViewModel(
         IRecipeService recipeService,
-        IUserInteractionService interactionService)
+        IUserInteractionService interactionService,
+        IUserPreferencesStore preferencesStore)
     {
         _recipeService = recipeService;
         _interactionService = interactionService;
+        _preferencesStore = preferencesStore;
 
         ToggleSaveCommand = new Command(ToggleSave);
         CookCommand = new Command(CookRecipe);
     }
+
 
     // =========================
     // NAVIGATION ENTRY
@@ -81,17 +88,36 @@ public class RecipeDetailsViewModel : INotifyPropertyChanged
 
         Recipe = recipe;
 
-        // Record view (implicit signal)
+        // 1️⃣ Record view
         await _interactionService.RecordViewAsync(recipe.Id);
 
-        // Load interaction for hint
+        // 2️⃣ Load interaction
         _interaction = await _interactionService.GetAsync(recipe.Id);
         OnPropertyChanged(nameof(MealContextHint));
 
+        // 3️⃣ Saved state
         IsSaved = _recipeService.IsRecipeSaved(recipe);
 
+        // 4️⃣ Load preferences
+        var preferences = await _preferencesStore.LoadAsync()
+            ?? new UserPreferences();
+
+        // 5️⃣ Generate explanation
+        var context = ContextHelper.GetCurrentMealContext();
+
+        Recipe.RecommendationReasons =
+            RecommendationExplainer.Explain(
+                Recipe,
+                _interaction ?? new UserRecipeInteraction { RecipeId = recipe.Id },
+                context,
+                preferences);
+
+        OnPropertyChanged(nameof(Recipe));
+
+        // 6️⃣ Load full recipe details
         await LoadDetailsAsync();
     }
+
 
     // =========================
     // LOAD FULL DETAILS
@@ -179,4 +205,5 @@ public class RecipeDetailsViewModel : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
     private void OnPropertyChanged(string name) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
 }

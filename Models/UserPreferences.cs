@@ -8,6 +8,10 @@ namespace NutriAI.Models;
 
 public class UserPreferences
 {
+    public string Name { get; set; } = string.Empty;
+
+    public int? WeightKg { get; set; }
+    public int? HeightCm { get; set; }
     public string Goal { get; set; } = string.Empty;          // lose weight, gain muscle
 
     public List<string> DietaryPreferences { get; set; } = new(); // vegan, halal, etc.

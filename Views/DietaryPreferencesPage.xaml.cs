@@ -4,9 +4,9 @@ namespace NutriAI.Views;
 
 public partial class DietaryPreferencesPage : ContentPage
 {
-    public DietaryPreferencesPage()
+    public DietaryPreferencesPage(DietaryPreferencesViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new DietaryPreferencesViewModel();
+        BindingContext = vm;
     }
 }

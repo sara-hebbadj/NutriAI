@@ -22,12 +22,7 @@ public class RecipeService : IRecipeService
     private readonly ObservableCollection<Recipe> _savedRecipes = new();
 
 
-    // ================= ALL RECIPES =================
-    public RecipeService()
-    {
-        //  LOAD MOCK DATA HERE
-        _allRecipes = MockRecipeService.All;
-    }
+
 
     // ========================
     // ALL RECIPES

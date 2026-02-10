@@ -3,9 +3,17 @@ namespace NutriAI.Views;
 
 public partial class AccountSettingsPage : ContentPage
 {
-    public AccountSettingsPage()
+    public AccountSettingsPage(AccountSettingsViewModel vm)
     {
         InitializeComponent();
-        BindingContext = new AccountSettingsViewModel();
+        BindingContext = vm;
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (BindingContext is AccountSettingsViewModel vm)
+            await vm.RefreshAsync();
     }
 }

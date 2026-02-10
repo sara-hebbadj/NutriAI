@@ -9,6 +9,9 @@ namespace NutriAI.Services.Recommendation;
 
 public interface IRecommendationService
 {
-    Task<IReadOnlyList<Recipe>> RankAsync(IEnumerable<Recipe> candidates);
+    Task<IReadOnlyList<Recipe>> RankAsync(
+        IEnumerable<Recipe> candidates,
+        UserPreferences preferences);
 }
+
 

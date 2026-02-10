@@ -174,54 +174,121 @@
 
 
             <!-- MENU LIST -->
-            <VerticalStackLayout>
+                <!-- MENU LIST -->
+                <VerticalStackLayout Spacing="12">
 
-                <Button Text="Dietary Preferences"
-                        FontSize="{DynamicResource BodyFontSize}"
-                        TextColor="{DynamicResource PrimaryTextColor}"
-                        Background="{DynamicResource CardBackground}"
+                    <Border Style="{DynamicResource CardStyle}">
+                        <Grid ColumnDefinitions="*,Auto"
+              Padding="14"
+              SemanticProperties.Description="Dietary preferences">
+                            <Label Text="Dietary Preferences"
+                   FontSize="{DynamicResource BodyFontSize}"
+                   VerticalOptions="Center" />
 
-                        BorderColor="{DynamicResource SecondaryTextColor}"
-            Command="{Binding OpenPageCommand}"
-            CommandParameter="DietaryPreferencesPage"/>
+                            <Label Text="›"
+                   Grid.Column="1"
+                   FontSize="18"
+                   VerticalOptions="Center"
+                   TextColor="{DynamicResource SecondaryTextColor}" />
 
-                <Button Text="Health Goals"
-                        FontSize="{DynamicResource BodyFontSize}"
-                        TextColor="{DynamicResource PrimaryTextColor}"
-                        Background="{DynamicResource CardBackground}"
+                            <Button Command="{Binding OpenPageCommand}"
+                    CommandParameter="DietaryPreferencesPage"
+                    BackgroundColor="Transparent"
+                    Opacity="0"
+                    SemanticProperties.Hint="Open dietary preferences"/>
+                        </Grid>
+                    </Border>
 
-                        BorderColor="{DynamicResource SecondaryTextColor}"
-            Command="{Binding OpenPageCommand}"
-            CommandParameter="HealthGoalsPage"/>
+                    <Border Style="{DynamicResource CardStyle}">
+                        <Grid ColumnDefinitions="*,Auto"
+              Padding="14"
+              SemanticProperties.Description="Health goals">
+                            <Label Text="Health Goals"
+                   FontSize="{DynamicResource BodyFontSize}"
+                   VerticalOptions="Center" />
 
-                <Button Text="Allergies and Restrictions"
-                        FontSize="{DynamicResource BodyFontSize}"
-                        TextColor="{DynamicResource PrimaryTextColor}"
-                        Background="{DynamicResource CardBackground}"
+                            <Label Text="›"
+                   Grid.Column="1"
+                   FontSize="18"
+                   VerticalOptions="Center"
+                   TextColor="{DynamicResource SecondaryTextColor}" />
 
-                        BorderColor="{DynamicResource SecondaryTextColor}"
-            Command="{Binding OpenPageCommand}"
-            CommandParameter="AllergiesPage"/>
+                            <Button Command="{Binding OpenPageCommand}"
+                    CommandParameter="HealthGoalsPage"
+                    BackgroundColor="Transparent"
+                    Opacity="0"
+                    SemanticProperties.Hint="Open health goals"/>
+                        </Grid>
+                    </Border>
 
-                <Button Text="Account Settings"
-                        FontSize="{DynamicResource BodyFontSize}"
-                        TextColor="{DynamicResource PrimaryTextColor}"
-                        Background="{DynamicResource CardBackground}"
+                    <Border Style="{DynamicResource CardStyle}">
+                        <Grid ColumnDefinitions="*,Auto"
+              Padding="14"
+              SemanticProperties.Description="Allergies and restrictions">
+                            <Label Text="Allergies and Restrictions"
+                   FontSize="{DynamicResource BodyFontSize}"
+                   VerticalOptions="Center" />
 
-                        BorderColor="{DynamicResource SecondaryTextColor}"
-            Command="{Binding OpenPageCommand}"
-            CommandParameter="AccountSettingsPage"/>
+                            <Label Text="›"
+                   Grid.Column="1"
+                   FontSize="18"
+                   VerticalOptions="Center"
+                   TextColor="{DynamicResource SecondaryTextColor}" />
 
-                <Button Text="Help and Support"
-                        FontSize="{DynamicResource BodyFontSize}"
-                        TextColor="{DynamicResource PrimaryTextColor}"
-                        Background="{DynamicResource CardBackground}"
+                            <Button Command="{Binding OpenPageCommand}"
+                    CommandParameter="AllergiesPage"
+                    BackgroundColor="Transparent"
+                    Opacity="0"
+                    SemanticProperties.Hint="Open allergies and restrictions"/>
+                        </Grid>
+                    </Border>
 
-                        BorderColor="{DynamicResource SecondaryTextColor}"
-            Command="{Binding OpenPageCommand}"
-            CommandParameter="HelpSupportPage"/>
+                    <Border Style="{DynamicResource CardStyle}">
+                        <Grid ColumnDefinitions="*,Auto"
+              Padding="14"
+              SemanticProperties.Description="Account settings">
+                            <Label Text="Account Settings"
+                   FontSize="{DynamicResource BodyFontSize}"
+                   VerticalOptions="Center" />
 
-            </VerticalStackLayout>
+                            <Label Text="›"
+                   Grid.Column="1"
+                   FontSize="18"
+                   VerticalOptions="Center"
+                   TextColor="{DynamicResource SecondaryTextColor}" />
+
+                            <Button Command="{Binding OpenPageCommand}"
+                    CommandParameter="AccountSettingsPage"
+                    BackgroundColor="Transparent"
+                    Opacity="0"
+                    SemanticProperties.Hint="Open account settings"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{DynamicResource CardStyle}">
+                        <Grid ColumnDefinitions="*,Auto"
+              Padding="14"
+              SemanticProperties.Description="Help and support">
+                            <Label Text="Help and Support"
+                   FontSize="{DynamicResource BodyFontSize}"
+                   VerticalOptions="Center" />
+
+                            <Label Text="›"
+                   Grid.Column="1"
+                   FontSize="18"
+                   VerticalOptions="Center"
+                   TextColor="{DynamicResource SecondaryTextColor}" />
+
+                            <Button Command="{Binding OpenPageCommand}"
+                    CommandParameter="HelpSupportPage"
+                    BackgroundColor="Transparent"
+                    Opacity="0"
+                    SemanticProperties.Hint="Open help and support"/>
+                        </Grid>
+                    </Border>
+
+                </VerticalStackLayout>
+
 
             </VerticalStackLayout>
         </ScrollView>
