@@ -4,7 +4,7 @@
 **Programme:** MSc Artificial Intelligence  
 **University:** University of Hull  
 
----
+
 
 # Overview
 
@@ -18,7 +18,7 @@ Instead of relying on explicit ratings, NutriAI infers user preferences through 
 
 These signals are used to dynamically adjust recommendation scores and provide personalised suggestions.
 
----
+
 
 # Key Features
 
@@ -29,7 +29,7 @@ These signals are used to dynamically adjust recommendation scores and provide p
 - Local interaction tracking
 - Cross-platform mobile interface
 
----
+
 
 # Technologies Used
 
@@ -39,7 +39,7 @@ These signals are used to dynamically adjust recommendation scores and provide p
 - **SQLite** – local interaction storage  
 - **Spoonacular API** – external recipe data  
 
----
+
 
 # System Architecture
 
@@ -53,7 +53,7 @@ The application follows a layered architecture consisting of:
 - Recommendation Engine (recipe scoring algorithm)
 - External Data Sources (Spoonacular API and SQLite)
 
----
+
 
 # Project Structure
 
@@ -68,7 +68,7 @@ NutriAI/
 ├── Preprocessing
 
 
----
+
 
 # Running the Application
 
@@ -78,7 +78,7 @@ Full installation instructions are provided in:
 Documentation/Installation_Guide.md
 
 
----
+
 
 # Dissertation Context
 
