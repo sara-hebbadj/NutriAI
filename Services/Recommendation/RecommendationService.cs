@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using NutriAI.Models;
+using NutriAI.Preprocessing;
 using NutriAI.Services.Interactions;
 using NutriAI.Services.Storage;
 
@@ -21,8 +22,8 @@ public class RecommendationService : IRecommendationService
     }
 
     public async Task<IReadOnlyList<Recipe>> RankAsync(
-        IEnumerable<Recipe> candidates,
-        UserPreferences _)
+    IEnumerable<Recipe> candidates,
+    UserPreferences _)
     {
         // ✅ Always load latest prefs (includes allergies)
         var preferences = await _preferencesStore.LoadAsync()
@@ -33,20 +34,54 @@ public class RecommendationService : IRecommendationService
 
         var map = interactions.ToDictionary(x => x.RecipeId, x => x);
 
-        return candidates
+        var recipeList = candidates.ToList();
+
+        // =====================================================
+        // 1️⃣ Compute global normalization statistics (ONCE)
+        // =====================================================
+        var stats = new NutritionStats
+        {
+            MinCalories = recipeList.Min(r => r.Calories),
+            MaxCalories = recipeList.Max(r => r.Calories),
+
+            MinProtein = recipeList.Min(r => r.ProteinGrams),
+            MaxProtein = recipeList.Max(r => r.ProteinGrams),
+
+            MinCarbs = recipeList.Min(r => r.CarbsGrams),
+            MaxCarbs = recipeList.Max(r => r.CarbsGrams),
+
+            MinFat = recipeList.Min(r => r.FatGrams),
+            MaxFat = recipeList.Max(r => r.FatGrams),
+
+            MinTime = recipeList.Min(r => r.CookingTimeMinutes),
+            MaxTime = recipeList.Max(r => r.CookingTimeMinutes)
+        };
+
+        return recipeList
             .Select(r =>
             {
                 var interaction = map.TryGetValue(r.Id, out var i)
                     ? i
                     : new UserRecipeInteraction { RecipeId = r.Id };
 
+                // =====================================================
+                // 2️⃣ Preprocessing: Feature Vector Construction
+                // =====================================================
+                var features = RecipeFeatureNormalizer.FromRecipe(r, stats);
+
+                // =====================================================
+                // 3️⃣ Score using enriched feature representation
+                // =====================================================
                 var score = RecipeScorer.Score(
                     r,
+                    features,
                     interaction,
                     context,
                     preferences);
 
-                // EXPLANATION 
+                // =====================================================
+                // 4️⃣ Explanation
+                // =====================================================
                 r.RecommendationReasons =
                     RecommendationExplainer.Explain(
                         r,
@@ -56,7 +91,7 @@ public class RecommendationService : IRecommendationService
 
                 return (Recipe: r, Score: score);
             })
-            //  HARD FILTER: remove illegal recipes (halal/allergies)
+            // HARD FILTER: remove illegal recipes (halal/allergies)
             .Where(x => x.Score > 0)
             .OrderByDescending(x => x.Score)
             .Select(x => x.Recipe)

@@ -1,5 +1,6 @@
 ﻿using SQLite;
 using NutriAI.Models;
+using System.Diagnostics;
 
 namespace NutriAI.Services.Interactions;
 
@@ -76,5 +77,7 @@ public class SQLiteUserInteractionService : IUserInteractionService
     {
         var row = await GetAsync(recipeId);
         return row ?? new UserRecipeInteraction { RecipeId = recipeId };
+        Debug.WriteLine($"DB PATH: {FileSystem.AppDataDirectory}");
     }
+
 }

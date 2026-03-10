@@ -7,10 +7,11 @@ public partial class App : Application
     public App(AppShell shell)
     {
         InitializeComponent();
-        _shell = shell;   // store injected shell
-        MainPage = new AppShell();
-
+        _shell = shell;
     }
 
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
+        return new Window(_shell);
+    }
 }
-

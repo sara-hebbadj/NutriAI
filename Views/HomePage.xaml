@@ -81,15 +81,23 @@
                TextChanged="OnSearchTextChanged"/>
 
                         <Border Grid.Column="1"
-                BackgroundColor="{DynamicResource AccentGreen}"
-                StrokeShape="RoundRectangle 10"
-                WidthRequest="45"
-                HeightRequest="35">
+        BackgroundColor="{DynamicResource AccentGreen}"
+        StrokeShape="RoundRectangle 10"
+        WidthRequest="45"
+        HeightRequest="35">
+
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnSearchTapped"/>
                             </Border.GestureRecognizers>
 
-                            <Image Source="search_white.png"/>
+                            <Grid>
+                                <Label
+            Text="🔍"
+            FontSize="18"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"/>
+                            </Grid>
+
                         </Border>
 
                     </Grid>
