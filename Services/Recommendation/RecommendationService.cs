@@ -25,7 +25,7 @@ public class RecommendationService : IRecommendationService
     IEnumerable<Recipe> candidates,
     UserPreferences _)
     {
-        // ✅ Always load latest prefs (includes allergies)
+        //  Always load latest prefs (includes allergies)
         var preferences = await _preferencesStore.LoadAsync()
                           ?? new UserPreferences();
 
@@ -37,7 +37,7 @@ public class RecommendationService : IRecommendationService
         var recipeList = candidates.ToList();
 
         // =====================================================
-        // 1️⃣ Compute global normalization statistics (ONCE)
+        // 1️ Compute global normalization statistics (ONCE)
         // =====================================================
         var stats = new NutritionStats
         {
@@ -65,12 +65,12 @@ public class RecommendationService : IRecommendationService
                     : new UserRecipeInteraction { RecipeId = r.Id };
 
                 // =====================================================
-                // 2️⃣ Preprocessing: Feature Vector Construction
+                // 2️ Preprocessing: Feature Vector Construction
                 // =====================================================
                 var features = RecipeFeatureNormalizer.FromRecipe(r, stats);
 
                 // =====================================================
-                // 3️⃣ Score using enriched feature representation
+                // 3️ Score using enriched feature representation
                 // =====================================================
                 var score = RecipeScorer.Score(
                     r,
@@ -80,7 +80,7 @@ public class RecommendationService : IRecommendationService
                     preferences);
 
                 // =====================================================
-                // 4️⃣ Explanation
+                // 4️ Explanation
                 // =====================================================
                 r.RecommendationReasons =
                     RecommendationExplainer.Explain(

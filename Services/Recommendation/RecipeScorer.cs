@@ -16,7 +16,7 @@ public static class RecipeScorer
         UserPreferences prefs)
     {
         // =====================================================
-        // 1️⃣ HARD EXCLUSIONS
+        // 1️ HARD EXCLUSIONS
         // =====================================================
         if (ViolatesAllergies(recipe, prefs)) return 0.0;
         if (ViolatesHalal(recipe, prefs)) return 0.0;
@@ -26,7 +26,7 @@ public static class RecipeScorer
         if (ViolatesDairyFree(recipe, prefs)) return 0.0;
 
         // =====================================================
-        // 2️⃣ BASELINE + IMPLICIT FEEDBACK
+        // 2️ BASELINE + IMPLICIT FEEDBACK
         // =====================================================
         var baseScore =
               0.5
@@ -35,13 +35,13 @@ public static class RecipeScorer
             + 1.2 * interaction.CookCount;
 
         // =====================================================
-        // 3️⃣ TIME DECAY
+        // 3️ TIME DECAY
         // =====================================================
         var lastEvent = interaction.LastCookedAt ?? interaction.LastViewedAt;
         var recencyWeight = TimeDecay.Compute(lastEvent, halfLifeDays: 7);
 
         // =====================================================
-        // 4️⃣ CONTEXT BOOST
+        // 4️ CONTEXT BOOST
         // =====================================================
         var contextBoost = 1.0;
         var currentMealType = ContextHelper.ToMealTypeString(context);
@@ -51,12 +51,12 @@ public static class RecipeScorer
             contextBoost *= 1.25;
 
         // =====================================================
-        // 5️⃣ FEATURE-BASED PREFERENCE WEIGHT
+        // 5️ FEATURE-BASED PREFERENCE WEIGHT
         // =====================================================
         var featureWeight = ComputeFeaturePreferenceWeight(features, prefs);
 
         // =====================================================
-        // 6️⃣ SOFT GOAL WEIGHTS
+        // 6️ SOFT GOAL WEIGHTS
         // =====================================================
         var ketoWeight = ComputeKetoWeight(recipe, prefs);
         var healthGoalWeight = ComputeHealthGoalWeight(recipe, prefs);
@@ -70,7 +70,7 @@ public static class RecipeScorer
     }
 
     // =====================================================
-    // FEATURE PREFERENCE LOGIC (NEW)
+    // FEATURE PREFERENCE LOGIC 
     // =====================================================
 
     private static double ComputeFeaturePreferenceWeight(
@@ -79,19 +79,19 @@ public static class RecipeScorer
     {
         double weight = 1.0;
 
-        // 🏋️ Gain Muscle → reward protein
+        //  Gain Muscle → reward protein
         if (prefs.Goal == "gain muscle")
         {
             weight *= 1.0 + (f.Protein * 0.5); // up to +50%
         }
 
-        // 🔥 Lose Weight → penalize high calories
+        //  Lose Weight → penalize high calories
         if (prefs.Goal == "lose weight")
         {
             weight *= 1.2 - (f.Calories * 0.5); // lower calories = higher weight
         }
 
-        // ⏱ Cooking Time Preference (implicit simplicity)
+        //  Cooking Time Preference (implicit simplicity)
         if (f.CookingTime > 0.8) // very long recipes
         {
             weight *= 0.9;
@@ -101,7 +101,7 @@ public static class RecipeScorer
     }
 
     // =====================================================
-    // HARD CONSTRAINTS (UNCHANGED)
+    // HARD CONSTRAINTS 
     // =====================================================
 
     private static bool ViolatesHalal(Recipe recipe, UserPreferences prefs)
@@ -174,7 +174,7 @@ public static class RecipeScorer
     }
 
     // =====================================================
-    // EXISTING SOFT LOGIC (UNCHANGED)
+    // EXISTING SOFT LOGIC 
     // =====================================================
 
     private static double ComputeKetoWeight(Recipe recipe, UserPreferences prefs)
@@ -208,7 +208,7 @@ public static class RecipeScorer
     }
 
     // =====================================================
-    // NORMALIZATION UTILITIES (UNCHANGED)
+    // NORMALIZATION UTILITIES 
     // =====================================================
 
     private static string Normalize(string text)
@@ -258,7 +258,7 @@ public static class RecipeScorer
 
 
     // =====================================================
-    // KEYWORDS (UNCHANGED)
+    // KEYWORDS 
     // =====================================================
 
     private static readonly string[] PorkKeywords = { "pork", "pig", "hog", "bacon", "ham", "prosciutto", "salami", "pepperoni", "pancetta", "guanciale", "lard", "gelatin", "chorizo", "hot dog" };

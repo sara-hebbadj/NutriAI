@@ -34,12 +34,12 @@ public class ApiRecipeService : IRecipeService
         _cache = cache;
         _savedRecipeStore = savedRecipeStore;
 
-        // 🔥 LOAD SAVED RECIPES FROM DISK
+        //  LOAD SAVED RECIPES FROM DISK
         LoadSavedRecipes();
     }
 
     // =========================
-    // LOAD SAVED RECIPES (PERSISTENCE)
+    // LOAD SAVED RECIPES 
     // =========================
     private async void LoadSavedRecipes()
     {
@@ -139,7 +139,7 @@ public class ApiRecipeService : IRecipeService
     }
 
     // =========================
-    // DETAILS PAGE (UNCHANGED)
+    // DETAILS PAGE 
     // =========================
     public async Task<Recipe?> GetRecipeDetailsAsync(string recipeId)
     {
@@ -198,7 +198,7 @@ public class ApiRecipeService : IRecipeService
     }
 
     // =========================
-    // HELPERS (UNCHANGED)
+    // HELPERS 
     // =========================
     private static readonly Dictionary<string, string> MealTypeMap = new()
     {

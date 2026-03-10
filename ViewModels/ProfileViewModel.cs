@@ -80,17 +80,17 @@ public class ProfileViewModel : BaseViewModel
         });
     }
 
-    // ✅ CALLED every time Profile page appears
+    //  CALLED every time Profile page appears
     public async Task RefreshAsync()
     {
-        // ✅ SAME source as SavedRecipesPage
+        //  SAME source as SavedRecipesPage
         RecipesSaved = _recipeService.GetSavedRecipes().Count;
 
-        // ✅ SQLite interaction data
+        //  SQLite interaction data
         var interactions = await _interactionService.GetAllAsync();
         RecipesViewed = interactions.Sum(i => i.ViewCount);
 
-        // ✅ Preferences
+        //  Preferences
         var preferences = await _preferencesStore.LoadAsync();
         GoalSummary = string.IsNullOrEmpty(preferences.Goal)
             ? "No goal set yet"
@@ -99,7 +99,7 @@ public class ProfileViewModel : BaseViewModel
             ? "User"
             : preferences.Name;
 
-        // ✅ Meals Cooked
+        //  Meals Cooked
         MealsCooked = interactions.Sum(i => i.CookCount);
 
 

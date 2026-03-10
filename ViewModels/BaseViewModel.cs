@@ -5,7 +5,7 @@ namespace NutriAI.ViewModels;
 
 public partial class BaseViewModel : INotifyPropertyChanged
 {
-    // Nullable event, matching .NET 9 INotifyPropertyChanged interface
+    
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected void OnPropertyChanged([CallerMemberName] string propertyName = null!)

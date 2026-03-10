@@ -14,7 +14,7 @@ public static class RecommendationExplainer
         var currentMeal = ContextHelper.ToMealTypeString(context);
 
         // =========================
-        // 1️⃣ STRONGEST SIGNALS FIRST
+        // 1️ STRONGEST SIGNALS FIRST
         // =========================
 
         if (interaction.CookCount > 0)
@@ -37,7 +37,7 @@ public static class RecommendationExplainer
         }
 
         // =========================
-        // 2️⃣ CONTEXT (TIME OF DAY)
+        // 2️ CONTEXT (TIME OF DAY)
         // =========================
 
         if (!string.IsNullOrWhiteSpace(recipe.MealType) &&
@@ -48,7 +48,7 @@ public static class RecommendationExplainer
         }
 
         // =========================
-        // 3️⃣ DIETARY PREFERENCES
+        // 3️ DIETARY PREFERENCES
         // =========================
 
         if (preferences.DietaryPreferences.Any())
@@ -66,7 +66,7 @@ public static class RecommendationExplainer
         }
 
         // =========================
-        // 4️⃣ HEALTH GOAL (SOFT)
+        // 4️ HEALTH GOAL (SOFT)
         // =========================
 
         if (!string.IsNullOrWhiteSpace(preferences.Goal))

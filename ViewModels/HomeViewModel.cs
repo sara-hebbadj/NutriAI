@@ -87,7 +87,7 @@ public class HomeViewModel : INotifyPropertyChanged
     {
         FilteredRecipes.Clear();
 
-        // 1️⃣ Search + filter relevance
+        // 1️ Search + filter relevance
         var filtered = AllRecipes
             .Select(r => new
             {
@@ -98,14 +98,14 @@ public class HomeViewModel : INotifyPropertyChanged
             .Select(x => x.Recipe)
             .ToList();
 
-        // 2️⃣ AI ranking (time decay + context)
+        // 2️ AI ranking (time decay + context)
         var preferences = await _preferencesStore.LoadAsync()
                    ?? new UserPreferences();
 
         var ranked = await _recommender.RankAsync(filtered, preferences);
 
 
-        // 3️⃣ Update UI
+        // 3️ Update UI
         foreach (var r in ranked)
             FilteredRecipes.Add(r);
     }

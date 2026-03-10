@@ -88,21 +88,21 @@ public class RecipeDetailsViewModel : INotifyPropertyChanged
 
         Recipe = recipe;
 
-        // 1️⃣ Record view
+        // 1️ Record view
         await _interactionService.RecordViewAsync(recipe.Id);
 
-        // 2️⃣ Load interaction
+        // 2️ Load interaction
         _interaction = await _interactionService.GetAsync(recipe.Id);
         OnPropertyChanged(nameof(MealContextHint));
 
-        // 3️⃣ Saved state
+        // 3️ Saved state
         IsSaved = _recipeService.IsRecipeSaved(recipe);
 
-        // 4️⃣ Load preferences
+        // 4️ Load preferences
         var preferences = await _preferencesStore.LoadAsync()
             ?? new UserPreferences();
 
-        // 5️⃣ Generate explanation
+        // 5️ Generate explanation
         var context = ContextHelper.GetCurrentMealContext();
 
         Recipe.RecommendationReasons =
@@ -114,7 +114,7 @@ public class RecipeDetailsViewModel : INotifyPropertyChanged
 
         OnPropertyChanged(nameof(Recipe));
 
-        // 6️⃣ Load full recipe details
+        // 6️ Load full recipe details
         await LoadDetailsAsync();
     }
 
