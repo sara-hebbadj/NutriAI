@@ -1,9 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using NutriAI.ViewModels;
-using NutriAI.Views;
-
-namespace NutriAI;
-
+using SQLitePCL;
 using NutriAI.Services;
 using NutriAI.Services.Caching;
 using NutriAI.Services.Interactions;
@@ -12,11 +8,15 @@ using NutriAI.Services.Storage;
 using NutriAI.ViewModels;
 using NutriAI.Views;
 
+namespace NutriAI;
+
 public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
+
+        Batteries.Init();
 
         builder
             .UseMauiApp<App>()
@@ -29,9 +29,7 @@ public static class MauiProgram
         // REGISTER APP SHELL
         builder.Services.AddSingleton<AppShell>();
 
-        // ----------------------------------------
         // REGISTER VIEWMODELS
-        // ----------------------------------------
         builder.Services.AddSingleton<HomeViewModel>();
         builder.Services.AddSingleton<SearchViewModel>();
         builder.Services.AddSingleton<SavedRecipesViewModel>();
@@ -44,12 +42,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<AccountSettingsViewModel>();
         builder.Services.AddTransient<RecipeDetailsViewModel>();
 
-        // ----------------------------------------
         // REGISTER PAGES
-        // ----------------------------------------
         builder.Services.AddSingleton<HomePage>();
         builder.Services.AddSingleton<SearchPage>();
-        builder.Services.AddSingleton<Views.SavedRecipesPage>();
+        builder.Services.AddSingleton<SavedRecipesPage>();
         builder.Services.AddSingleton<ProfilePage>();
         builder.Services.AddSingleton<SignupPage>();
         builder.Services.AddTransient<RecipeDetailsPage>();
@@ -59,18 +55,13 @@ public static class MauiProgram
         builder.Services.AddSingleton<AccountSettingsPage>();
         builder.Services.AddSingleton<AllergiesPage>();
 
-        // ----------------------------------------
         // REGISTER SERVICES
-        // ----------------------------------------
         builder.Services.AddSingleton<IRecipeService, ApiRecipeService>();
         builder.Services.AddSingleton<ICacheService, FileCacheService>();
-        builder.Services.AddSingleton<ISavedRecipeStore, FileSavedRecipeStore>();
         builder.Services.AddSingleton<ISavedRecipeStore, FileSavedRecipeStore>();
         builder.Services.AddSingleton<IUserPreferencesStore, FileUserPreferencesStore>();
         builder.Services.AddSingleton<IUserInteractionService, SQLiteUserInteractionService>();
         builder.Services.AddSingleton<IRecommendationService, RecommendationService>();
-
-
 
 #if DEBUG
         builder.Logging.AddDebug();

@@ -40,11 +40,21 @@ public static class RecommendationExplainer
         // 2️ CONTEXT (TIME OF DAY)
         // =========================
 
-        if (!string.IsNullOrWhiteSpace(recipe.MealType) &&
-            recipe.MealType.Equals(currentMeal,
-                StringComparison.OrdinalIgnoreCase))
+        if (!string.IsNullOrWhiteSpace(recipe.MealType))
         {
-            reasons.Add($"Good match for {currentMeal}");
+            var isDirectMatch =
+                recipe.MealType.Equals(currentMeal,
+                    StringComparison.OrdinalIgnoreCase);
+
+            var isFlexibleMealMatch =
+                recipe.MealType.Equals("meal", StringComparison.OrdinalIgnoreCase) &&
+                (currentMeal.Equals("lunch", StringComparison.OrdinalIgnoreCase) ||
+                 currentMeal.Equals("dinner", StringComparison.OrdinalIgnoreCase));
+
+            if (isDirectMatch || isFlexibleMealMatch)
+            {
+                reasons.Add($"Good match for {currentMeal}");
+            }
         }
 
         // =========================

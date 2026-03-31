@@ -7,14 +7,11 @@ using NutriAI.Services.Storage;
 
 namespace NutriAI.ViewModels;
 
-
-
 public class HomeViewModel : INotifyPropertyChanged
 {
     private readonly IRecipeService _recipeService;
     private readonly IRecommendationService _recommender;
     private readonly IUserPreferencesStore _preferencesStore;
-
 
     public HomeViewModel(
         IRecipeService recipeService,
@@ -27,7 +24,6 @@ public class HomeViewModel : INotifyPropertyChanged
 
         AllRecipes = _recipeService.GetAllRecipes();
     }
-
 
     // ========================
     // DATA SOURCES
@@ -85,29 +81,36 @@ public class HomeViewModel : INotifyPropertyChanged
     // ========================
     private async void ApplyAllFilters()
     {
-        FilteredRecipes.Clear();
+        try
+        {
+            FilteredRecipes.Clear();
 
-        // 1️ Search + filter relevance
-        var filtered = AllRecipes
-            .Select(r => new
-            {
-                Recipe = r,
-                FilterScore = CalculateScore(r)
-            })
-            .Where(x => x.FilterScore > 0)
-            .Select(x => x.Recipe)
-            .ToList();
+            // 1️ Search + filter relevance
+            var filtered = AllRecipes
+                .Where(r => r != null)
+                .Select(r => new
+                {
+                    Recipe = r,
+                    FilterScore = CalculateScore(r)
+                })
+                .Where(x => x.FilterScore > 0)
+                .Select(x => x.Recipe)
+                .ToList();
 
-        // 2️ AI ranking (time decay + context)
-        var preferences = await _preferencesStore.LoadAsync()
-                   ?? new UserPreferences();
+            // 2️ AI ranking (time decay + context)
+            var preferences = await _preferencesStore.LoadAsync()
+                               ?? new UserPreferences();
 
-        var ranked = await _recommender.RankAsync(filtered, preferences);
+            var ranked = await _recommender.RankAsync(filtered, preferences);
 
-
-        // 3️ Update UI
-        foreach (var r in ranked)
-            FilteredRecipes.Add(r);
+            // 3️ Update UI
+            foreach (var r in ranked.Where(x => x != null))
+                FilteredRecipes.Add(r);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[HOME FILTER ERROR] {ex.Message}");
+        }
     }
 
     // ========================
@@ -126,28 +129,46 @@ public class HomeViewModel : INotifyPropertyChanged
                 r.Title.Contains(q, StringComparison.OrdinalIgnoreCase))
                 score += 3;
 
-            if (r.Ingredients.Any(i =>
+            if ((r.Ingredients ?? new List<string>()).Any(i =>
+                !string.IsNullOrWhiteSpace(i) &&
                 i.Contains(q, StringComparison.OrdinalIgnoreCase)))
                 score += 2;
         }
 
         // Meal type
-        if (!string.IsNullOrWhiteSpace(SelectedMealType) &&
-            r.MealType.Equals(SelectedMealType,
-                StringComparison.OrdinalIgnoreCase))
-            score += 2;
+        if (!string.IsNullOrWhiteSpace(SelectedMealType))
+        {
+            var selectedMeal = SelectedMealType.ToLowerInvariant();
+            var recipeMeal = r.MealType?.ToLowerInvariant() ?? "";
+
+            var mealMatches =
+                recipeMeal == selectedMeal ||
+                (recipeMeal == "meal" &&
+                 (selectedMeal == "lunch" || selectedMeal == "dinner"));
+
+            if (mealMatches)
+                score += 2;
+        }
 
         // Diet
-        if (!string.IsNullOrWhiteSpace(SelectedDiet) &&
-            r.Diet.Equals(SelectedDiet,
-                StringComparison.OrdinalIgnoreCase))
-            score += 2;
+        if (!string.IsNullOrWhiteSpace(SelectedDiet))
+        {
+            var selectedDiet = SelectedDiet.ToLowerInvariant();
+            var recipeDiet = r.Diet?.ToLowerInvariant() ?? "";
+
+            if (recipeDiet == selectedDiet)
+                score += 2;
+        }
 
         // Cuisine
-        if (!string.IsNullOrWhiteSpace(SelectedCuisine) &&
-            r.Cuisine.Equals(SelectedCuisine,
-                StringComparison.OrdinalIgnoreCase))
-            score += 1;
+        if (!string.IsNullOrWhiteSpace(SelectedCuisine))
+        {
+            var selectedCuisine = SelectedCuisine.ToLowerInvariant();
+            var recipeCuisine = r.Cuisine?.ToLowerInvariant() ?? "";
+
+            if (recipeCuisine == selectedCuisine)
+                score += 1;
+        }
 
         // Default (no filters/search)
         if (string.IsNullOrWhiteSpace(_searchQuery) &&

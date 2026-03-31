@@ -86,7 +86,7 @@ public class ApiRecipeService : IRecipeService
         var (found, cached) =
             await _cache.GetAsync<List<Recipe>>(cacheKey);
 
-        if (found && cached != null)
+        if (found && cached != null && cached.Any())
         {
             _allRecipes.Clear();
             foreach (var r in cached)
@@ -96,22 +96,34 @@ public class ApiRecipeService : IRecipeService
 
         try
         {
-            var url =
-                $"https://api.spoonacular.com/recipes/complexSearch" +
-                $"?query={query}&number=20&addRecipeInformation=true" +
-                $"&addRecipeNutrition=true&apiKey={ApiKey}";
+            var response = await FetchRecipesAsync(query);
 
-            var response =
-                await _httpClient.GetFromJsonAsync<ApiSearchResponse>(url);
+            // fallback if original query returns nothing
+            if (response?.results == null || !response.results.Any())
+            {
+                Debug.WriteLine($"[API] No results for query '{query}', trying fallback query 'healthy'...");
+                response = await FetchRecipesAsync("healthy");
+            }
 
-            _allRecipes.Clear();
+            // second fallback
+            if (response?.results == null || !response.results.Any())
+            {
+                Debug.WriteLine("[API] No results for fallback query 'healthy', trying fallback query 'meal'...");
+                response = await FetchRecipesAsync("meal");
+            }
 
-            if (response?.results == null)
+            // if still nothing, keep current list instead of blanking page
+            if (response?.results == null || !response.results.Any())
+            {
+                Debug.WriteLine("[API] No recipes returned after fallbacks. Keeping existing recipes.");
                 return;
+            }
+
+            var freshRecipes = new List<Recipe>();
 
             foreach (var r in response.results)
             {
-                _allRecipes.Add(new Recipe
+                freshRecipes.Add(new Recipe
                 {
                     Id = r.id.ToString(),
                     Title = r.title,
@@ -127,15 +139,35 @@ public class ApiRecipeService : IRecipeService
                 });
             }
 
+            if (!freshRecipes.Any())
+            {
+                Debug.WriteLine("[API] Mapped recipe list is empty. Keeping existing recipes.");
+                return;
+            }
+
+            _allRecipes.Clear();
+            foreach (var recipe in freshRecipes)
+                _allRecipes.Add(recipe);
+
             await _cache.SetAsync(
                 cacheKey,
-                _allRecipes.ToList(),
+                freshRecipes,
                 TimeSpan.FromHours(12));
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"[API ERROR] {ex.Message}");
         }
+    }
+
+    private async Task<ApiSearchResponse?> FetchRecipesAsync(string query)
+    {
+        var url =
+            $"https://api.spoonacular.com/recipes/complexSearch" +
+            $"?query={query}&number=40&addRecipeInformation=true" +
+            $"&addRecipeNutrition=true&apiKey={ApiKey}";
+
+        return await _httpClient.GetFromJsonAsync<ApiSearchResponse>(url);
     }
 
     // =========================
@@ -171,12 +203,12 @@ public class ApiRecipeService : IRecipeService
                 Ingredients = dto.extendedIngredients?
                     .Select(i => i.original).ToList() ?? new(),
                 Instructions = string.Join(
-    "\n\n",
-    dto.analyzedInstructions?
-        .FirstOrDefault()?.steps?
-        .Select(s => s.step)
-        ?? Enumerable.Empty<string>()
-),
+                    "\n\n",
+                    dto.analyzedInstructions?
+                        .FirstOrDefault()?.steps?
+                        .Select(s => s.step)
+                        ?? Enumerable.Empty<string>()
+                ),
 
                 Calories = GetNutrient(dto.nutrition, "Calories"),
                 ProteinGrams = GetNutrient(dto.nutrition, "Protein"),
@@ -206,9 +238,9 @@ public class ApiRecipeService : IRecipeService
         ["brunch"] = "breakfast",
         ["lunch"] = "lunch",
         ["dinner"] = "dinner",
-        ["main course"] = "lunch",
-        ["side dish"] = "lunch",
-        ["soup"] = "lunch",
+        ["main course"] = "meal",
+        ["side dish"] = "meal",
+        ["soup"] = "meal",
         ["snack"] = "snack",
         ["dessert"] = "snack"
     };
@@ -244,9 +276,17 @@ public class ApiRecipeService : IRecipeService
         IEnumerable<string>? apiValues,
         Dictionary<string, string> map)
     {
-        var raw = apiValues?.FirstOrDefault()?.ToLowerInvariant().Trim();
-        if (string.IsNullOrEmpty(raw)) return "";
-        return map.TryGetValue(raw, out var normalized) ? normalized : raw;
+        if (apiValues == null || !apiValues.Any())
+            return "";
+
+        foreach (var value in apiValues)
+        {
+            var raw = value.ToLowerInvariant().Trim();
+            if (map.TryGetValue(raw, out var normalized))
+                return normalized;
+        }
+
+        return apiValues.FirstOrDefault()?.ToLowerInvariant().Trim() ?? "";
     }
 
     private static string NormalizeDiet(IEnumerable<string>? diets)

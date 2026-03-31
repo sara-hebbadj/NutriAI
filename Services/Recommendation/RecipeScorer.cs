@@ -46,9 +46,19 @@ public static class RecipeScorer
         var contextBoost = 1.0;
         var currentMealType = ContextHelper.ToMealTypeString(context);
 
-        if (!string.IsNullOrWhiteSpace(recipe.MealType) &&
-            recipe.MealType.Equals(currentMealType, StringComparison.OrdinalIgnoreCase))
-            contextBoost *= 1.25;
+        if (!string.IsNullOrWhiteSpace(recipe.MealType))
+        {
+            var isDirectMatch =
+                recipe.MealType.Equals(currentMealType, StringComparison.OrdinalIgnoreCase);
+
+            var isFlexibleMealMatch =
+                recipe.MealType.Equals("meal", StringComparison.OrdinalIgnoreCase) &&
+                (currentMealType.Equals("lunch", StringComparison.OrdinalIgnoreCase) ||
+                 currentMealType.Equals("dinner", StringComparison.OrdinalIgnoreCase));
+
+            if (isDirectMatch || isFlexibleMealMatch)
+                contextBoost *= 1.25;
+        }
 
         // =====================================================
         // 5️ FEATURE-BASED PREFERENCE WEIGHT
