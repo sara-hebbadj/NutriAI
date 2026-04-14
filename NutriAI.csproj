@@ -1,4 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<!--
+Authorship note:
+This project file follows standard .NET MAUI project configuration.
+Package and target framework settings were adjusted by the author
+with support from Microsoft documentation and setup guidance.
+-->
 
 	<PropertyGroup>
 <TargetFrameworks>net9.0-android;net9.0-ios</TargetFrameworks>

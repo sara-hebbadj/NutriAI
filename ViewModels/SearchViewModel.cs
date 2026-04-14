@@ -1,4 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿// Authorship note:
+// This file was written by the author for a simple NutriAI view-model.
+// External help was limited to standard .NET MAUI / MVVM syntax examples and minor boilerplate support from copilot.
+// The page purpose, bound fields, and its role in the application were decided by the author.
+
+using System.Collections.ObjectModel;
 using NutriAI.Models;
 using NutriAI.Services;
 

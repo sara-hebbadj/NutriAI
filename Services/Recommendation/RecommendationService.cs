@@ -1,4 +1,12 @@
-﻿using System.Collections.Generic;
+﻿// Authorship note:
+// Microsoft documentation was used in this file for LINQ methods such as Select, Where,
+// OrderByDescending, ToList, ToDictionary, Min, and Max.
+// Copilot was used to help draft and refine the ranking pipeline structure.
+// The NutriAI specific pipeline: loading preferences and interactions, computing normalized features,
+// calling the scorer, filtering invalid recipes, ranking results, and attaching explanations 
+// was designed, adapted, and tested by the author.
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NutriAI.Models;
@@ -25,20 +33,24 @@ public class RecommendationService : IRecommendationService
     IEnumerable<Recipe> candidates,
     UserPreferences _)
     {
-        //  Always load latest prefs (includes allergies)
+        // Always load the latest saved preferences so the ranking
+        // uses the user's current dietary rules, allergies, and goals.
         var preferences = await _preferencesStore.LoadAsync()
                           ?? new UserPreferences();
-
+        // Load all recorded user interactions and detect the current meal context.
         var interactions = await _interactionService.GetAllAsync();
         var context = ContextHelper.GetCurrentMealContext();
 
+        // Convert the interaction list into a lookup by recipe id
+        // so existing interaction data can be found quickly during ranking.
         var map = interactions.ToDictionary(x => x.RecipeId, x => x);
 
+        // Materialize the candidate sequence once so it can be reused
+        // for normalization and later ranking.
         var recipeList = candidates.ToList();
 
-        // =====================================================
-        // 1️ Compute global normalization statistics (ONCE)
-        // =====================================================
+        // Compute global nutrition ranges once for the whole candidate set.
+        // These ranges are used to normalize recipe features consistently.
         var stats = new NutritionStats
         {
             MinCalories = recipeList.Min(r => r.Calories),
@@ -60,18 +72,18 @@ public class RecommendationService : IRecommendationService
         return recipeList
             .Select(r =>
             {
+                // Use the stored interaction record if it exists,
+                // otherwise start with an empty interaction profile for this recipe.
                 var interaction = map.TryGetValue(r.Id, out var i)
                     ? i
                     : new UserRecipeInteraction { RecipeId = r.Id };
 
-                // =====================================================
-                // 2️ Preprocessing: Feature Vector Construction
-                // =====================================================
+                // Convert the raw recipe into normalized feature values
+                // so scoring can work with comparable numeric inputs.
                 var features = RecipeFeatureNormalizer.FromRecipe(r, stats);
 
-                // =====================================================
-                // 3️ Score using enriched feature representation
-                // =====================================================
+                // Compute the final recommendation score using filtering,
+                // behavioural signals, recency, context, and preference weights.
                 var score = RecipeScorer.Score(
                     r,
                     features,
@@ -79,9 +91,8 @@ public class RecommendationService : IRecommendationService
                     context,
                     preferences);
 
-                // =====================================================
-                // 4️ Explanation
-                // =====================================================
+                // Generate simple recommendation explanation for the UI
+                // using the same main inputs used in the ranking process.
                 r.RecommendationReasons =
                     RecommendationExplainer.Explain(
                         r,
@@ -91,8 +102,9 @@ public class RecommendationService : IRecommendationService
 
                 return (Recipe: r, Score: score);
             })
-            // HARD FILTER: remove illegal recipes (halal/allergies)
+            // HARD FILTER: Remove recipes that scored zero because they failed hard constraints.
             .Where(x => x.Score > 0)
+            // Sort the remaining valid recipes from highest score to lowest.
             .OrderByDescending(x => x.Score)
             .Select(x => x.Recipe)
             .ToList();

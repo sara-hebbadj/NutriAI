@@ -1,4 +1,11 @@
-﻿using NutriAI.Models;
+﻿// Authorship note:
+// Microsoft documentation was used in this file for List<T>, LINQ methods,
+// string checks, and string comparison.
+// Copilot was used to help draft and refine the explanation building logic.
+// The actual recommendation reasons, their priority order, and the decision to return
+// short human readable explanations for NutriAI were defined by the author.
+
+using NutriAI.Models;
 
 namespace NutriAI.Services.Recommendation;
 
@@ -13,14 +20,14 @@ public static class RecommendationExplainer
         var reasons = new List<string>();
         var currentMeal = ContextHelper.ToMealTypeString(context);
 
-        // =========================
-        // 1️ STRONGEST SIGNALS FIRST
-        // =========================
-
+        // Start with the strongest behavioural signals first,
+        // because these are the clearest indicators of user preference.
         if (interaction.CookCount > 0)
         {
             reasons.Add("You cooked this recipe before");
 
+            // If the app knows the meal type previously used,
+            // include that as extra behavioural context.
             if (!string.IsNullOrWhiteSpace(interaction.LastUsedMealType))
             {
                 reasons.Add(
@@ -29,17 +36,18 @@ public static class RecommendationExplainer
         }
         else if (interaction.SaveCount > 0)
         {
+            // A save is treated as a strong sign of interest,
+            // but weaker than actually cooking the recipe.
             reasons.Add("You saved this recipe");
         }
         else if (interaction.ViewCount >= 2)
         {
+            // Repeated viewing suggests interest even if the recipe
+            // has not yet been saved or cooked.
             reasons.Add("You viewed similar recipes recently");
         }
 
-        // =========================
-        // 2️ CONTEXT (TIME OF DAY)
-        // =========================
-
+        // Add a context explanation if the recipe matches the current meal time.
         if (!string.IsNullOrWhiteSpace(recipe.MealType))
         {
             var isDirectMatch =
@@ -57,10 +65,7 @@ public static class RecommendationExplainer
             }
         }
 
-        // =========================
-        // 3️ DIETARY PREFERENCES
-        // =========================
-
+        // Add a simple dietary explanation if dietary preferences are active.
         if (preferences.DietaryPreferences.Any())
         {
             if (!string.IsNullOrWhiteSpace(recipe.Diet) &&
@@ -75,10 +80,8 @@ public static class RecommendationExplainer
             }
         }
 
-        // =========================
-        // 4️ HEALTH GOAL (SOFT)
-        // =========================
-
+        // Add a health-goal explanation when the recipe supports
+        // the user's current goal in a simple and readable way.
         if (!string.IsNullOrWhiteSpace(preferences.Goal))
         {
             if (preferences.Goal == "lose weight" &&
@@ -95,13 +98,11 @@ public static class RecommendationExplainer
             }
         }
 
-        // =========================
-        // FINAL OUTPUT
-        // =========================
-
+        // If no specific reason was triggered, return a generic fallback explanation.
         if (reasons.Count == 0)
             reasons.Add("Recommended based on your activity");
 
+        // Remove duplicates and keep the explanation short enough for the UI.
         return reasons
             .Distinct()
             .Take(3)

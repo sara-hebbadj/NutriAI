@@ -1,4 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// Authorship note:
+// Microsoft documentation and MAUI setup guidance were used in this file
+// for app startup, dependency injection, font registration, logging, and service registration.
+// The selection of services, view models, pages, and how they are wired together
+// in NutriAI was decided and configured by the author.
+
+using Microsoft.Extensions.Logging;
 using SQLitePCL;
 using NutriAI.Services;
 using NutriAI.Services.Caching;

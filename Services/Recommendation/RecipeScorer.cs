@@ -1,4 +1,11 @@
-﻿using System;
+﻿// Authorship note:
+// Microsoft documentation was used in this file for LINQ, string comparison,
+// HashSet usage, and standard C# utility methods.
+// Copilot was used to help draft and refine parts of the scoring implementation.
+// The NutriAI specific scoring logic including filter-before-rank, interaction weights,
+// dietary and allergy keyword filtering, context boost, keto and health-goal weighting,
+// and the overall score composition was designed and adapted by the author.
+
 using System.Collections.Generic;
 using System.Linq;
 using NutriAI.Models;
@@ -15,9 +22,8 @@ public static class RecipeScorer
         MealContext context,
         UserPreferences prefs)
     {
-        // =====================================================
-        // 1️ HARD EXCLUSIONS
-        // =====================================================
+        // Hard constraints come first.
+        // If a recipe violates an allergy or dietary rule, it is excluded before ranking.
         if (ViolatesAllergies(recipe, prefs)) return 0.0;
         if (ViolatesHalal(recipe, prefs)) return 0.0;
         if (ViolatesVegan(recipe, prefs)) return 0.0;
@@ -25,24 +31,19 @@ public static class RecipeScorer
         if (ViolatesGlutenFree(recipe, prefs)) return 0.0;
         if (ViolatesDairyFree(recipe, prefs)) return 0.0;
 
-        // =====================================================
-        // 2️ BASELINE + IMPLICIT FEEDBACK
-        // =====================================================
+        // Start with a baseline score, then add implicit feedback.
+        // Views are weaker signals, saves are stronger, and cooks are strongest.
         var baseScore =
               0.5
             + 0.1 * interaction.ViewCount
             + 0.6 * interaction.SaveCount
             + 1.2 * interaction.CookCount;
 
-        // =====================================================
-        // 3️ TIME DECAY
-        // =====================================================
+        // Use the most recent meaningful interaction to compute recency.
         var lastEvent = interaction.LastCookedAt ?? interaction.LastViewedAt;
         var recencyWeight = TimeDecay.Compute(lastEvent, halfLifeDays: 7);
 
-        // =====================================================
-        // 4️ CONTEXT BOOST
-        // =====================================================
+        // Give a moderate boost if the recipe matches the current meal context.
         var contextBoost = 1.0;
         var currentMealType = ContextHelper.ToMealTypeString(context);
 
@@ -60,17 +61,14 @@ public static class RecipeScorer
                 contextBoost *= 1.25;
         }
 
-        // =====================================================
-        // 5️ FEATURE-BASED PREFERENCE WEIGHT
-        // =====================================================
+        // Apply softer preference-based weighting from normalized features.
         var featureWeight = ComputeFeaturePreferenceWeight(features, prefs);
 
-        // =====================================================
-        // 6️ SOFT GOAL WEIGHTS
-        // =====================================================
+        // Apply extra weighting for specific dietary or health goals.
         var ketoWeight = ComputeKetoWeight(recipe, prefs);
         var healthGoalWeight = ComputeHealthGoalWeight(recipe, prefs);
 
+        // Final score = behaviour × recency × context × preferences/goals
         return baseScore
              * recencyWeight
              * contextBoost
@@ -79,30 +77,26 @@ public static class RecipeScorer
              * healthGoalWeight;
     }
 
-    // =====================================================
-    // FEATURE PREFERENCE LOGIC 
-    // =====================================================
-
     private static double ComputeFeaturePreferenceWeight(
         RecipeFeatureVector f,
         UserPreferences prefs)
     {
         double weight = 1.0;
 
-        //  Gain Muscle → reward protein
+        // For muscle gain, reward higher protein recipes.
         if (prefs.Goal == "gain muscle")
         {
-            weight *= 1.0 + (f.Protein * 0.5); // up to +50%
+            weight *= 1.0 + (f.Protein * 0.5);
         }
 
-        //  Lose Weight → penalize high calories
+        // For weight loss, prefer lower-calorie recipes.
         if (prefs.Goal == "lose weight")
         {
-            weight *= 1.2 - (f.Calories * 0.5); // lower calories = higher weight
+            weight *= 1.2 - (f.Calories * 0.5);
         }
 
-        //  Cooking Time Preference (implicit simplicity)
-        if (f.CookingTime > 0.8) // very long recipes
+        // Very long cooking times receive a small penalty.
+        if (f.CookingTime > 0.8)
         {
             weight *= 0.9;
         }
@@ -110,10 +104,8 @@ public static class RecipeScorer
         return weight;
     }
 
-    // =====================================================
-    // HARD CONSTRAINTS 
-    // =====================================================
-
+    // Each hard-constraint check returns true if the recipe conflicts
+    // with the user's dietary rules or allergies.
     private static bool ViolatesHalal(Recipe recipe, UserPreferences prefs)
     {
         if (!prefs.DietaryPreferences.Contains("halal"))
@@ -160,6 +152,7 @@ public static class RecipeScorer
 
     private static bool ViolatesAllergies(Recipe recipe, UserPreferences prefs)
     {
+        // Check the user's allergy list against groups of ingredient keywords.
         foreach (var rawAllergy in prefs.Allergies)
         {
             var allergy = Normalize(rawAllergy);
@@ -183,15 +176,12 @@ public static class RecipeScorer
         return false;
     }
 
-    // =====================================================
-    // EXISTING SOFT LOGIC 
-    // =====================================================
-
     private static double ComputeKetoWeight(Recipe recipe, UserPreferences prefs)
     {
         if (!prefs.DietaryPreferences.Contains("keto"))
             return 1.0;
 
+        // Simple keto rule: low carbs get rewarded, higher carbs get penalized.
         return recipe.CarbsGrams <= 20 ? 1.3 : 0.4;
     }
 
@@ -217,12 +207,10 @@ public static class RecipeScorer
         };
     }
 
-    // =====================================================
-    // NORMALIZATION UTILITIES 
-    // =====================================================
-
     private static string Normalize(string text)
     {
+        // Normalize text so ingredient matching is less sensitive
+        // to punctuation, hyphens, and casing differences.
         return text
             .ToLowerInvariant()
             .Replace("-", " ")
@@ -248,11 +236,13 @@ public static class RecipeScorer
                 tokens.Add(t);
         }
 
+        // Build a token set from the recipe title and ingredient list.
         AddTokensFromText(recipe.Title);
 
         foreach (var ingredient in recipe.Ingredients ?? Enumerable.Empty<string>())
             AddTokensFromText(ingredient);
 
+        // Return true as soon as one of the keywords appears in the token set.
         foreach (var keyword in keywords)
         {
             var normalized = Normalize(keyword);
@@ -266,11 +256,7 @@ public static class RecipeScorer
         return false;
     }
 
-
-    // =====================================================
-    // KEYWORDS 
-    // =====================================================
-
+    // Keyword lists are used for simple rule-based safety filtering.
     private static readonly string[] PorkKeywords = { "pork", "pig", "hog", "bacon", "ham", "prosciutto", "salami", "pepperoni", "pancetta", "guanciale", "lard", "gelatin", "chorizo", "hot dog" };
     private static readonly string[] MeatKeywords = { "beef", "veal", "lamb", "mutton", "chicken", "turkey", "duck", "pork", "bacon", "ham", "sausage", "steak", "ribs", "mince", "ground beef", "meatball", "burger", "patty", "broth", "bone broth", "stock" };
     private static readonly string[] FishKeywords = { "fish", "seafood", "salmon", "tuna", "cod", "haddock", "tilapia", "anchovy", "sardine", "shrimp", "prawn", "crab", "lobster", "scallop", "clam", "mussel", "oyster", "fish sauce" };

@@ -1,4 +1,14 @@
-﻿using System.Collections.ObjectModel;
+﻿// Authorship note:
+// Microsoft Learn documentation was used in this file for HttpClient,
+// GetFromJsonAsync, ObservableCollection, LINQ, async/await, and TimeSpan usage.
+// Copilot was used to help draft and refine parts of the API service structure,
+// including fetch methods, fallback flow, DTO-to-model mapping, and cache usage patterns.
+// The NutriAI-specific decisions in this file - using Spoonacular as the recipe source,
+// choosing which recipe fields to map, defining fallback queries, normalizing meal/diet/cuisine
+// categories, and integrating caching and saved-recipe persistence into the app -
+// were selected, adapted, and tested by the author.
+
+using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Diagnostics;
@@ -11,6 +21,8 @@ namespace NutriAI.Services;
 
 public class ApiRecipeService : IRecipeService
 {
+    // Reuse one HttpClient instance for API calls.
+    // A timeout is included so the app does not wait too long on failed requests.
     private static readonly HttpClient _httpClient = new()
     {
         Timeout = TimeSpan.FromSeconds(15)
@@ -19,10 +31,14 @@ public class ApiRecipeService : IRecipeService
     private readonly ICacheService _cache;
     private readonly ISavedRecipeStore _savedRecipeStore;
 
+    // Holds the recipes shown on the main browse/home views.
     private readonly ObservableCollection<Recipe> _allRecipes = new();
+
+    // Holds the user's locally saved recipes.
     private ObservableCollection<Recipe> _savedRecipes = new();
 
-    private const string ApiKey = "916a0166fc6f47779e7059fb749bf3bb";
+    // Spoonacular API key used for recipe requests.
+    private const string ApiKey = "4e7f8a1091d049969c87dfb2e801cc95";
 
     // =========================
     // CONSTRUCTOR
@@ -34,7 +50,7 @@ public class ApiRecipeService : IRecipeService
         _cache = cache;
         _savedRecipeStore = savedRecipeStore;
 
-        //  LOAD SAVED RECIPES FROM DISK
+        // Load previously saved recipes from local storage when the service starts.
         LoadSavedRecipes();
     }
 
@@ -50,16 +66,22 @@ public class ApiRecipeService : IRecipeService
     // =========================
     // INTERFACE IMPLEMENTATION
     // =========================
+
+    // Return the full in-memory recipe collection used by the UI.
     public ObservableCollection<Recipe> GetAllRecipes() => _allRecipes;
 
+    // Return the in-memory saved recipes collection used by the UI.
     public ObservableCollection<Recipe> GetSavedRecipes() => _savedRecipes;
 
     public async void SaveRecipe(Recipe recipe)
     {
+        // Prevent duplicate saves for the same recipe.
         if (_savedRecipes.Any(r => r.Id == recipe.Id))
             return;
 
         _savedRecipes.Add(recipe);
+
+        // Persist the updated saved-recipes list locally.
         await _savedRecipeStore.SaveAsync(_savedRecipes);
     }
 
@@ -70,6 +92,8 @@ public class ApiRecipeService : IRecipeService
             return;
 
         _savedRecipes.Remove(existing);
+
+        // Persist the updated saved-recipes list locally.
         await _savedRecipeStore.SaveAsync(_savedRecipes);
     }
 
@@ -83,6 +107,7 @@ public class ApiRecipeService : IRecipeService
     {
         var cacheKey = $"recipes:list:query={query}";
 
+        // Try local cache first so repeated searches do not keep hitting the API.
         var (found, cached) =
             await _cache.GetAsync<List<Recipe>>(cacheKey);
 
@@ -98,21 +123,21 @@ public class ApiRecipeService : IRecipeService
         {
             var response = await FetchRecipesAsync(query);
 
-            // fallback if original query returns nothing
+            // If the user's original query returns nothing, try a broader fallback query.
             if (response?.results == null || !response.results.Any())
             {
                 Debug.WriteLine($"[API] No results for query '{query}', trying fallback query 'healthy'...");
                 response = await FetchRecipesAsync("healthy");
             }
 
-            // second fallback
+            // Second fallback to reduce the chance of showing a blank page.
             if (response?.results == null || !response.results.Any())
             {
                 Debug.WriteLine("[API] No results for fallback query 'healthy', trying fallback query 'meal'...");
                 response = await FetchRecipesAsync("meal");
             }
 
-            // if still nothing, keep current list instead of blanking page
+            // If no results are found even after fallbacks, keep the existing UI state.
             if (response?.results == null || !response.results.Any())
             {
                 Debug.WriteLine("[API] No recipes returned after fallbacks. Keeping existing recipes.");
@@ -123,6 +148,7 @@ public class ApiRecipeService : IRecipeService
 
             foreach (var r in response.results)
             {
+                // Map the external API DTO into NutriAI's internal Recipe model.
                 freshRecipes.Add(new Recipe
                 {
                     Id = r.id.ToString(),
@@ -139,6 +165,7 @@ public class ApiRecipeService : IRecipeService
                 });
             }
 
+            // If the mapping step somehow produces no usable recipes, avoid clearing the page.
             if (!freshRecipes.Any())
             {
                 Debug.WriteLine("[API] Mapped recipe list is empty. Keeping existing recipes.");
@@ -149,6 +176,7 @@ public class ApiRecipeService : IRecipeService
             foreach (var recipe in freshRecipes)
                 _allRecipes.Add(recipe);
 
+            // Cache the mapped recipe list locally for faster future loading.
             await _cache.SetAsync(
                 cacheKey,
                 freshRecipes,
@@ -167,6 +195,7 @@ public class ApiRecipeService : IRecipeService
             $"?query={query}&number=40&addRecipeInformation=true" +
             $"&addRecipeNutrition=true&apiKey={ApiKey}";
 
+        // Deserialize the JSON API response directly into the DTO type.
         return await _httpClient.GetFromJsonAsync<ApiSearchResponse>(url);
     }
 
@@ -177,6 +206,7 @@ public class ApiRecipeService : IRecipeService
     {
         var cacheKey = $"recipes:details:id={recipeId}";
 
+        // Use cached details first if available.
         var (found, cached) =
             await _cache.GetAsync<Recipe>(cacheKey);
 
@@ -194,6 +224,7 @@ public class ApiRecipeService : IRecipeService
 
             if (dto == null) return null;
 
+            // Map the details DTO into the internal Recipe model used by the app.
             var recipe = new Recipe
             {
                 Id = dto.id.ToString(),
@@ -216,6 +247,7 @@ public class ApiRecipeService : IRecipeService
                 FatGrams = GetNutrient(dto.nutrition, "Fat")
             };
 
+            // Cache detailed recipe data for longer because it changes less often.
             await _cache.SetAsync(
                 cacheKey,
                 recipe,
@@ -232,6 +264,8 @@ public class ApiRecipeService : IRecipeService
     // =========================
     // HELPERS 
     // =========================
+
+    // Map Spoonacular dish-type labels into simpler NutriAI categories.
     private static readonly Dictionary<string, string> MealTypeMap = new()
     {
         ["breakfast"] = "breakfast",
@@ -245,6 +279,7 @@ public class ApiRecipeService : IRecipeService
         ["dessert"] = "snack"
     };
 
+    // Map API diet labels into the simpler labels used inside NutriAI.
     private static readonly Dictionary<string, string> DietMap = new()
     {
         ["vegetarian"] = "vegetarian",
@@ -257,6 +292,7 @@ public class ApiRecipeService : IRecipeService
         ["whole30"] = "balanced"
     };
 
+    // Map API cuisine labels into a smaller set of cuisine categories.
     private static readonly Dictionary<string, string> CuisineMap = new()
     {
         ["italian"] = "italian",
@@ -286,18 +322,22 @@ public class ApiRecipeService : IRecipeService
                 return normalized;
         }
 
+        // If no custom mapping exists, return the first normalized value from the API.
         return apiValues.FirstOrDefault()?.ToLowerInvariant().Trim() ?? "";
     }
 
     private static string NormalizeDiet(IEnumerable<string>? diets)
     {
         if (diets == null) return "balanced";
+
         foreach (var d in diets)
         {
             var key = d.ToLowerInvariant().Trim();
             if (DietMap.TryGetValue(key, out var normalized))
                 return normalized;
         }
+
+        // Default to "balanced" when no known diet label is matched.
         return "balanced";
     }
 
@@ -305,7 +345,9 @@ public class ApiRecipeService : IRecipeService
     {
         if (cuisines == null || !cuisines.Any())
             return "other";
+
         var raw = cuisines.First().ToLowerInvariant().Trim();
+
         return CuisineMap.TryGetValue(raw, out var normalized)
             ? normalized
             : "other";
@@ -313,6 +355,7 @@ public class ApiRecipeService : IRecipeService
 
     private static int GetNutrient(Nutrition nutrition, string name)
     {
+        // Extract one named nutrient amount from the API nutrition object.
         return (int)(nutrition?.nutrients?
             .FirstOrDefault(n => n.name == name)?.amount ?? 0);
     }

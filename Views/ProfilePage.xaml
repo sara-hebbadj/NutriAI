@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!--
+Authorship note:
+This XAML file was written by the author for the NutriAI user interface.
+External help was limited to standard .NET MAUI/XAML layout, binding, and control examples,
+with minor boilerplate support where needed.
+The page layout, chosen controls, bindings, and role in the application were decided by the author.
+-->
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"

@@ -1,4 +1,9 @@
-﻿using NutriAI.Views;
+﻿// Authorship note:
+// Microsoft documentation and MAUI navigation guidance were used
+// for route registration and Shell navigation structure in this file.
+// The NutriAI navigation routes and page organization were defined by the author.
+
+using NutriAI.Views;
 
 namespace NutriAI;
 
