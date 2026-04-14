@@ -10,7 +10,7 @@
 
 NutriAI is a cross-platform mobile application that generates personalised recipe recommendations based on user behaviour.
 
-Instead of relying on explicit ratings, NutriAI infers user preferences through **implicit interaction signals** such as:
+Instead of relying on explicit ratings, NutriAI infers user preferences through implicit interaction signals such as:
 
 - Viewing recipes  
 - Saving recipes  
@@ -84,4 +84,4 @@ Documentation/Installation_Guide.md
 
 This project was developed as part of the MSc Artificial Intelligence programme at the University of Hull.
 
-NutriAI investigates how **behaviour-driven recommendation systems** can support personalised nutrition applications.
+NutriAI investigates how behaviour-driven recommendation systems can support personalised nutrition applications.
