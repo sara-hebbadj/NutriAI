@@ -41,6 +41,18 @@ public class RecommendationService : IRecommendationService
         var interactions = await _interactionService.GetAllAsync();
         var context = ContextHelper.GetCurrentMealContext();
 
+        return Rank(candidates, preferences, interactions, context);
+    }
+
+    // Testability change (October 2026, portfolio version):
+    // the ranking steps below were moved unchanged out of RankAsync into this pure method,
+    // so unit tests can rank recipes with a fixed meal context and no SQLite or file storage.
+    public static IReadOnlyList<Recipe> Rank(
+        IEnumerable<Recipe> candidates,
+        UserPreferences preferences,
+        IReadOnlyList<UserRecipeInteraction> interactions,
+        MealContext context)
+    {
         // Convert the interaction list into a lookup by recipe id
         // so existing interaction data can be found quickly during ranking.
         var map = interactions.ToDictionary(x => x.RecipeId, x => x);

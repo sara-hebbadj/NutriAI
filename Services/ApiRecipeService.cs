@@ -38,7 +38,9 @@ public class ApiRecipeService : IRecipeService
     private ObservableCollection<Recipe> _savedRecipes = new();
 
     // Spoonacular API key used for recipe requests.
-    private const string ApiKey = "4e7f8a1091d049969c87dfb2e801cc95";
+    // Portfolio change (October 2026): the key used to be a hard-coded constant here.
+    // It is now read from the SPOONACULAR_API_KEY environment variable (see SpoonacularSettings.cs).
+    private static readonly string ApiKey = SpoonacularSettings.GetApiKey();
 
     // =========================
     // CONSTRUCTOR

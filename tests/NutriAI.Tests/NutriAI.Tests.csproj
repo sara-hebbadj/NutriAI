@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Plain .NET 9 test project (no MAUI), so it runs on Windows, macOS and Linux CI.
+    It does not reference NutriAI.csproj. Instead it compiles the app's own source files
+    that have no MAUI dependency (scoring, preprocessing, models, DTOs, the API service),
+    linked from the app folders. The tests therefore exercise Sara's real code, not a copy.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>NutriAI.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <!-- Same version as the app: UserRecipeInteraction uses its [PrimaryKey] attribute. -->
+    <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <!-- App source files under test (MAUI-free only). They appear under "App" in Visual Studio. -->
+  <ItemGroup>
+    <Compile Include="..\..\Models\*.cs" Link="App\Models\%(Filename)%(Extension)" />
+    <Compile Include="..\..\Preprocessing\*.cs" Link="App\Preprocessing\%(Filename)%(Extension)" />
+    <Compile Include="..\..\DTOs\*.cs" Link="App\DTOs\%(Filename)%(Extension)" />
+    <Compile Include="..\..\Services\Recommendation\*.cs" Link="App\Services\Recommendation\%(Filename)%(Extension)" />
+    <Compile Include="..\..\Services\Interactions\IUserInteractionService.cs" Link="App\Services\Interactions\%(Filename)%(Extension)" />
+    <Compile Include="..\..\Services\Storage\IUserPreferencesStore.cs" Link="App\Services\Storage\%(Filename)%(Extension)" />
+    <Compile Include="..\..\Services\Storage\ISavedRecipeStore.cs" Link="App\Services\Storage\%(Filename)%(Extension)" />
+    <Compile Include="..\..\Services\Caching\ICacheService.cs" Link="App\Services\Caching\%(Filename)%(Extension)" />
+    <Compile Include="..\..\Services\IRecipeService.cs" Link="App\Services\%(Filename)%(Extension)" />
+    <Compile Include="..\..\Services\ApiRecipeService.cs" Link="App\Services\%(Filename)%(Extension)" />
+    <Compile Include="..\..\Services\SpoonacularSettings.cs" Link="App\Services\%(Filename)%(Extension)" />
+    <!-- These two view models use no MAUI types, so the tests can drive the real home and search logic. -->
+    <Compile Include="..\..\ViewModels\HomeViewModel.cs" Link="App\ViewModels\%(Filename)%(Extension)" />
+    <Compile Include="..\..\ViewModels\SearchViewModel.cs" Link="App\ViewModels\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

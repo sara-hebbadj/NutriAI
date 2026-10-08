@@ -159,10 +159,11 @@ API documentation:
 
 https://spoonacular.com/food-api
 
-The API key is defined inside:
-
-
-Services/ApiRecipeService.cs
+The API key is no longer stored in the source code (portfolio update, October 2026).
+The app reads it from the `SPOONACULAR_API_KEY` environment variable
+(see `Services/SpoonacularSettings.cs`). Set it up as described in the root `README.md`,
+section "How to run": on Windows with `setx SPOONACULAR_API_KEY "your-key"`, and for the
+Android emulator in the git-ignored file `Platforms/Android/spoonacular.env`.
 
 
 If the API quota is exceeded, requests may temporarily fail.

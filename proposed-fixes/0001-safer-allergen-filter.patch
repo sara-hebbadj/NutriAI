@@ -1,0 +1,370 @@
+diff -ruN a/DTOs/NutritionDtos.cs b/DTOs/NutritionDtos.cs
+--- a/DTOs/NutritionDtos.cs	2026-04-14 16:58:31.000000000 +0400
++++ b/DTOs/NutritionDtos.cs	2026-10-08 17:03:23.734161954 +0400
+@@ -12,6 +12,15 @@
+ {
+     // Holds the nutrient entries returned by the API.
+     public List<Nutrient> nutrients { get; set; } = new();
++
++    // Proposed fix F1: with addRecipeNutrition=true the search results also list the recipe's
++    // ingredients here. Not yet checked against a live API response (needs a Spoonacular key).
++    public List<NutritionIngredient> ingredients { get; set; } = new();
++}
++
++public class NutritionIngredient
++{
++    public string name { get; set; } = string.Empty;
+ }
+ 
+ public class Nutrient
+diff -ruN a/Services/ApiRecipeService.cs b/Services/ApiRecipeService.cs
+--- a/Services/ApiRecipeService.cs	2026-10-08 16:33:42.503456326 +0400
++++ b/Services/ApiRecipeService.cs	2026-10-08 17:03:23.734284665 +0400
+@@ -161,6 +161,12 @@
+                     ProteinGrams = GetNutrient(r.nutrition, "Protein"),
+                     CarbsGrams = GetNutrient(r.nutrition, "Carbohydrates"),
+                     FatGrams = GetNutrient(r.nutrition, "Fat"),
++                    // Proposed fix F1: keep ingredient names so the home feed's allergy check
++                    // sees more than the title.
++                    Ingredients = r.nutrition?.ingredients?
++                        .Select(i => i.name)
++                        .Where(n => !string.IsNullOrWhiteSpace(n))
++                        .ToList() ?? new(),
+                     MealType = NormalizeCategory(r.dishTypes, MealTypeMap),
+                     Diet = NormalizeDiet(r.diets),
+                     Cuisine = NormalizeCuisine(r.cuisines)
+diff -ruN a/Services/Recommendation/RecipeScorer.cs b/Services/Recommendation/RecipeScorer.cs
+--- a/Services/Recommendation/RecipeScorer.cs	2026-04-14 16:58:31.000000000 +0400
++++ b/Services/Recommendation/RecipeScorer.cs	2026-10-08 17:03:23.734365364 +0400
+@@ -24,6 +24,9 @@
+     {
+         // Hard constraints come first.
+         // If a recipe violates an allergy or dietary rule, it is excluded before ranking.
++        // Proposed fix F1: with no ingredient list, the allergy check could only read the title,
++        // so a user with allergies is not shown a recipe whose ingredients are unknown.
++        if (prefs.Allergies.Any() && (recipe.Ingredients == null || recipe.Ingredients.Count == 0)) return 0.0;
+         if (ViolatesAllergies(recipe, prefs)) return 0.0;
+         if (ViolatesHalal(recipe, prefs)) return 0.0;
+         if (ViolatesVegan(recipe, prefs)) return 0.0;
+@@ -119,9 +122,9 @@
+         if (!prefs.DietaryPreferences.Contains("vegan"))
+             return false;
+ 
+-        return ContainsAny(recipe, MeatKeywords)
++        return ContainsAny(recipe, MeatKeywords, VegetableStockPhrases)
+             || ContainsAny(recipe, FishKeywords)
+-            || ContainsAny(recipe, DairyKeywords)
++            || ContainsAny(recipe, DairyKeywords, PlantBasedPhrases)
+             || ContainsAny(recipe, EggKeywords);
+     }
+ 
+@@ -130,7 +133,7 @@
+         if (!prefs.DietaryPreferences.Contains("vegetarian"))
+             return false;
+ 
+-        return ContainsAny(recipe, MeatKeywords)
++        return ContainsAny(recipe, MeatKeywords, VegetableStockPhrases)
+             || ContainsAny(recipe, FishKeywords);
+     }
+ 
+@@ -147,7 +150,7 @@
+         if (!prefs.DietaryPreferences.Contains("dairy-free"))
+             return false;
+ 
+-        return ContainsAny(recipe, DairyKeywords);
++        return ContainsAny(recipe, DairyKeywords, PlantBasedPhrases);
+     }
+ 
+     private static bool ViolatesAllergies(Recipe recipe, UserPreferences prefs)
+@@ -160,7 +163,7 @@
+             if (allergy.Contains("nut") && ContainsAny(recipe, NutKeywords))
+                 return true;
+ 
+-            if (allergy.Contains("dairy") && ContainsAny(recipe, DairyKeywords))
++            if (allergy.Contains("dairy") && ContainsAny(recipe, DairyKeywords, PlantBasedPhrases))
+                 return true;
+ 
+             if (allergy.Contains("egg") && ContainsAny(recipe, EggKeywords))
+@@ -223,46 +226,77 @@
+             .Replace(":", " ");
+     }
+ 
+-    private static bool ContainsAny(Recipe recipe, IEnumerable<string> keywords)
++    // Proposed fix F2/F3: each keyword is matched as a whole phrase inside one text
++    // (the title or one ingredient line), and simple plurals count ("prawns", "noodles").
++    // The old version split "fish sauce" into "fish" + "sauce", so ANY "sauce" matched,
++    // and it only matched the exact singular, so "mussels" did not match "mussel".
++    private static bool ContainsAny(Recipe recipe, IEnumerable<string> keywords, IEnumerable<string>? safePhrases = null)
+     {
+-        var tokens = new HashSet<string>();
+-
+-        void AddTokensFromText(string? text)
++        foreach (var text in RecipeTexts(recipe))
+         {
+-            if (string.IsNullOrWhiteSpace(text)) return;
++            var padded = $" {text} ";
+ 
+-            var cleaned = Normalize(text);
+-            foreach (var t in cleaned.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+-                tokens.Add(t);
++            // Remove phrases that only look like the allergen, for example "coconut milk" for dairy.
++            foreach (var safe in safePhrases ?? Enumerable.Empty<string>())
++                padded = padded.Replace($" {safe} ", " ");
++
++            foreach (var keyword in keywords)
++                foreach (var form in WithPlural(CleanWords(keyword)))
++                    if (padded.Contains($" {form} "))
++                        return true;
+         }
+ 
+-        // Build a token set from the recipe title and ingredient list.
+-        AddTokensFromText(recipe.Title);
++        return false;
++    }
++
++    // The title and each ingredient line, normalised to lowercase words separated by single spaces.
++    private static IEnumerable<string> RecipeTexts(Recipe recipe)
++    {
++        if (!string.IsNullOrWhiteSpace(recipe.Title))
++            yield return CleanWords(recipe.Title);
+ 
+         foreach (var ingredient in recipe.Ingredients ?? Enumerable.Empty<string>())
+-            AddTokensFromText(ingredient);
++            if (!string.IsNullOrWhiteSpace(ingredient))
++                yield return CleanWords(ingredient);
++    }
+ 
+-        // Return true as soon as one of the keywords appears in the token set.
+-        foreach (var keyword in keywords)
++    // "Tamari (gluten-free soy sauce)" -> "tamari gluten free soy sauce"
++    private static string CleanWords(string text) =>
++        string.Join(' ', Normalize(text).Split(' ', StringSplitOptions.RemoveEmptyEntries));
++
++    // "prawn" -> prawn, prawns; "anchovy" -> anchovy, anchovies; "pistachio" -> pistachios, pistachioes.
++    private static IEnumerable<string> WithPlural(string phrase)
++    {
++        yield return phrase;
++
++        if (phrase.Length > 1 && phrase.EndsWith('y') && !"aeiou".Contains(phrase[^2]))
+         {
+-            var normalized = Normalize(keyword);
+-            foreach (var k in normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+-            {
+-                if (tokens.Contains(k))
+-                    return true;
+-            }
++            yield return phrase[..^1] + "ies";
++            yield break;
+         }
+ 
+-        return false;
++        if (phrase.EndsWith('s') || phrase.EndsWith("sh") || phrase.EndsWith("ch") || phrase.EndsWith('x') || phrase.EndsWith('o'))
++            yield return phrase + "es";
++
++        yield return phrase + "s";
+     }
+ 
+     // Keyword lists are used for simple rule-based safety filtering.
+     private static readonly string[] PorkKeywords = { "pork", "pig", "hog", "bacon", "ham", "prosciutto", "salami", "pepperoni", "pancetta", "guanciale", "lard", "gelatin", "chorizo", "hot dog" };
+     private static readonly string[] MeatKeywords = { "beef", "veal", "lamb", "mutton", "chicken", "turkey", "duck", "pork", "bacon", "ham", "sausage", "steak", "ribs", "mince", "ground beef", "meatball", "burger", "patty", "broth", "bone broth", "stock" };
+     private static readonly string[] FishKeywords = { "fish", "seafood", "salmon", "tuna", "cod", "haddock", "tilapia", "anchovy", "sardine", "shrimp", "prawn", "crab", "lobster", "scallop", "clam", "mussel", "oyster", "fish sauce" };
+-    private static readonly string[] NutKeywords = { "nut", "nuts", "peanut", "peanuts", "peanut butter", "almond", "almonds", "almond milk", "cashew", "cashews", "pistachio", "pistachios", "walnut", "walnuts", "hazelnut", "hazelnuts", "pecan", "pecans", "macadamia", "marzipan", "praline" };
+-    private static readonly string[] DairyKeywords = { "milk", "cream", "butter", "ghee", "cheese", "cheddar", "mozzarella", "parmesan", "feta", "ricotta", "yogurt", "curd", "whey", "casein", "lactose", "milk powder", "condensed milk", "ice cream", "custard" };
+-    private static readonly string[] EggKeywords = { "egg", "eggs", "yolk", "yolks", "eggwhite", "eggwhites", "albumen", "mayonnaise", "aioli", "meringue" };
+-    private static readonly string[] ShellfishKeywords = { "shrimp", "prawn", "crab", "lobster", "scallop", "clam", "mussel", "oyster" };
+-    private static readonly string[] GlutenKeywords = { "wheat", "barley", "rye", "flour", "white flour", "bread", "bun", "roll", "pasta", "spaghetti", "penne", "noodle", "ramen", "udon", "couscous", "bulgur", "breadcrumbs", "panko", "cracker", "crouton", "soy sauce", "teriyaki", "malt", "seitan" };
++    private static readonly string[] NutKeywords = { "nut", "nuts", "peanut", "peanuts", "peanut butter", "almond", "almonds", "almond milk", "cashew", "cashews", "pistachio", "pistachios", "walnut", "walnuts", "hazelnut", "hazelnuts", "pecan", "pecans", "macadamia", "marzipan", "praline",
++        "pesto", "nutella", "gianduja", "frangipane" }; // proposed fix F2: dishes and spreads made from nuts
++    private static readonly string[] DairyKeywords = { "milk", "cream", "butter", "ghee", "cheese", "cheddar", "mozzarella", "parmesan", "feta", "ricotta", "yogurt", "curd", "whey", "casein", "lactose", "milk powder", "condensed milk", "ice cream", "custard",
++        "yoghurt", "buttermilk", "mascarpone", "paneer", "halloumi", "brie", "gruyere", "parmigiano", "creme fraiche", "crème fraîche", "kefir" }; // proposed fix F2
++    private static readonly string[] EggKeywords = { "egg", "eggs", "yolk", "yolks", "eggwhite", "eggwhites", "albumen", "mayonnaise", "aioli", "meringue",
++        "caesar dressing", "hollandaise", "bearnaise", "carbonara" }; // proposed fix F2: sauces made with egg
++    private static readonly string[] ShellfishKeywords = { "shrimp", "prawn", "crab", "lobster", "scallop", "clam", "mussel", "oyster",
++        "squid", "calamari", "octopus", "crayfish", "crawfish", "langoustine", "cockle", "seafood" }; // proposed fix F2
++    private static readonly string[] GlutenKeywords = { "wheat", "barley", "rye", "flour", "white flour", "bread", "bun", "roll", "pasta", "spaghetti", "penne", "noodle", "ramen", "udon", "couscous", "bulgur", "breadcrumbs", "panko", "cracker", "crouton", "soy sauce", "teriyaki", "malt", "seitan",
++        "linguine", "fettuccine", "tagliatelle", "fusilli", "macaroni", "lasagna", "lasagne", "orzo", "dough", "bagel", "pita", "naan", "croissant", "brioche", "baguette", "biscuit", "semolina", "spelt", "farro", "beer" }; // proposed fix F2
++
++    // Proposed fix F3: phrases that contain an allergen word but are not that allergen.
++    private static readonly string[] PlantBasedPhrases = { "coconut milk", "almond milk", "soy milk", "oat milk", "rice milk", "cashew milk", "coconut cream", "coconut yogurt", "peanut butter", "almond butter", "cashew butter", "nut butter", "cocoa butter", "dairy free" };
++    private static readonly string[] VegetableStockPhrases = { "vegetable stock", "vegetable broth", "veggie stock", "veggie broth" };
+ }
+\ No newline at end of file
+diff -ruN a/Services/Recommendation/RecommendationExplainer.cs b/Services/Recommendation/RecommendationExplainer.cs
+--- a/Services/Recommendation/RecommendationExplainer.cs	2026-04-14 16:58:31.000000000 +0400
++++ b/Services/Recommendation/RecommendationExplainer.cs	2026-10-08 17:03:23.734482821 +0400
+@@ -44,7 +44,9 @@
+         {
+             // Repeated viewing suggests interest even if the recipe
+             // has not yet been saved or cooked.
+-            reasons.Add("You viewed similar recipes recently");
++            // Proposed fix F4: the old text said "similar recipes recently", but the count is for
++            // this recipe and its views can be weeks old.
++            reasons.Add("You viewed this recipe before");
+         }
+ 
+         // Add a context explanation if the recipe matches the current meal time.
+@@ -66,7 +68,9 @@
+         }
+ 
+         // Add a simple dietary explanation if dietary preferences are active.
+-        if (preferences.DietaryPreferences.Any())
++        // Proposed fix F4: do not say "fits" when the keto rule has just cut the score to 40%.
++        var ketoPenalty = preferences.DietaryPreferences.Contains("keto") && recipe.CarbsGrams > 20;
++        if (preferences.DietaryPreferences.Any() && !ketoPenalty)
+         {
+             if (!string.IsNullOrWhiteSpace(recipe.Diet) &&
+                 preferences.DietaryPreferences.Contains(
+diff -ruN a/tests/NutriAI.Tests/ExplanationPropertyTests.cs b/tests/NutriAI.Tests/ExplanationPropertyTests.cs
+--- a/tests/NutriAI.Tests/ExplanationPropertyTests.cs	2026-10-08 16:42:48.545526386 +0400
++++ b/tests/NutriAI.Tests/ExplanationPropertyTests.cs	2026-10-08 17:03:23.734550809 +0400
+@@ -76,7 +76,7 @@
+             {
+                 if (reason == "You cooked this recipe before") Assert.True(c.History.CookCount > 0);
+                 if (reason == "You saved this recipe") Assert.True(c.History.SaveCount > 0);
+-                if (reason == "You viewed similar recipes recently") Assert.True(c.History.ViewCount >= 2);
++                if (reason == "You viewed this recipe before") Assert.True(c.History.ViewCount >= 2);
+                 if (reason.StartsWith("Good match for")) Assert.Equal(1.25, c.Factors.Context);
+                 if (reason == "Supports your weight loss goal") Assert.Equal(1.25, c.Factors.Goal);
+                 if (reason == "High in protein for muscle gain") Assert.Equal(1.3, c.Factors.Goal);
+diff -ruN a/tests/NutriAI.Tests/KnownFindings.cs b/tests/NutriAI.Tests/KnownFindings.cs
+--- a/tests/NutriAI.Tests/KnownFindings.cs	2026-10-08 17:01:04.475700875 +0400
++++ b/tests/NutriAI.Tests/KnownFindings.cs	2026-10-08 17:03:31.916377778 +0400
+@@ -12,27 +12,16 @@
+ 
+     // F2: unsafe recipes the filter keeps even when the full ingredient list is available.
+     // "Word" is the ingredient the keyword lists do not recognise.
+-    public static readonly IReadOnlyList<Miss> MissedWithFullIngredients = new List<Miss>
+-    {
+-        new("allergy: nuts", "r21", "basil pesto (pine nuts; a dish name, not an ingredient word)"),
+-        new("allergy: eggs", "r09", "Caesar dressing (egg yolk; a composite ingredient)"),
+-        new("allergy: shellfish", "r24", "mussels, king prawns, squid (plurals; squid not listed)"),
+-        new("allergy: shellfish", "r46", "mussels (plural; only \"mussel\" is listed)"),
+-        new("allergy: gluten", "r09", "croutons (plural; only \"crouton\" is listed)"),
+-        new("allergy: gluten", "r12", "linguine (pasta shape not listed)"),
+-        new("allergy: gluten", "r50", "bagel (not listed)"),
+-        new("diet: gluten-free", "r09", "croutons"),
+-        new("diet: gluten-free", "r12", "linguine"),
+-        new("diet: gluten-free", "r50", "bagel"),
+-    };
++    // All 10 misses listed before proposed-fixes/0001 are fixed by it.
++    public static readonly IReadOnlyList<Miss> MissedWithFullIngredients = new List<Miss>();
+ 
+     // Explanation mismatches found by ExplanationPropertyTests (finding F4).
+     // Each kind is described in docs/architecture.md ("Known issues", F4).
+     public static readonly IReadOnlySet<string> ExplanationMismatchKinds = new HashSet<string>
+     {
+-        "diet reason shown although keto rule lowered the score",
++        // fixed by 0001: "diet reason shown although keto rule lowered the score"
++        // fixed by 0001: "\"recently\" claimed for a view older than 7 days"
+         "reason not used by the scorer (\"You usually cook this for ...\")",
+-        "\"recently\" claimed for a view older than 7 days",
+         "history reason shown although decayed history lowers the score",
+         "strongest factor not mentioned",
+     };
+diff -ruN a/tests/NutriAI.Tests/KnownFindingsTests.cs b/tests/NutriAI.Tests/KnownFindingsTests.cs
+--- a/tests/NutriAI.Tests/KnownFindingsTests.cs	2026-10-08 17:01:04.475267257 +0400
++++ b/tests/NutriAI.Tests/KnownFindingsTests.cs	2026-10-08 17:03:23.734682124 +0400
+@@ -20,19 +20,17 @@
+     private static double Score(Recipe r, UserPreferences prefs) =>
+         RecipeScorer.Score(r, Make.Features(), Make.NoHistory(r), Lunch, prefs);
+ 
+-    // F1 (high): the home feed only knows recipe titles, so allergens hidden in the
+-    // ingredients are not seen. ApiRecipeService.LoadRecipesAsync maps title, image, time,
+-    // nutrition and categories from the search results, but no ingredients.
++    // F1 (fixed by proposed-fixes/0001): a recipe with no ingredient list is no longer shown
++    // to a user with allergies, and the home feed now keeps ingredient names from the API.
+     [Fact]
+-    public async Task F1_home_feed_shows_an_allergen_recipe_when_only_the_title_is_known()
++    public async Task F1_home_feed_hides_a_recipe_with_unknown_ingredients_from_a_user_with_allergies()
+     {
+         var pancakesTitleOnly = new Recipe { Id = "1", Title = "Fluffy Buttermilk Pancakes", MealType = "breakfast" };
+         var home = HomeWith(new[] { pancakesTitleOnly }, Make.Prefs(allergies: new[] { "dairy" }));
+ 
+         await home.InitializeAsync();
+ 
+-        // Today: shown to a user with a dairy allergy (buttermilk, butter and milk are in the real recipe).
+-        Assert.Contains(home.FilteredRecipes, r => r.Id == "1");
++        Assert.DoesNotContain(home.FilteredRecipes, r => r.Id == "1");
+ 
+         // The same recipe with its ingredient list (as loaded on the details page) is excluded.
+         var withIngredients = Make.Recipe("Fluffy Buttermilk Pancakes", ingredients: new[] { "2 cups buttermilk", "3 tbsp melted butter" });
+@@ -53,7 +51,7 @@
+     {
+         var r = Make.Recipe("Dinner", ingredients: ingredient);
+ 
+-        Assert.True(Score(r, Make.Prefs(allergies: new[] { allergy })) > 0); // kept today
++        Assert.Equal(0.0, Score(r, Make.Prefs(allergies: new[] { allergy }))); // fixed: excluded
+     }
+ 
+     [Fact]
+@@ -62,7 +60,7 @@
+         var shellfish = Make.Prefs(allergies: new[] { "shellfish" });
+ 
+         Assert.Equal(0.0, Score(Make.Recipe("Dinner", ingredients: "1 prawn"), shellfish));
+-        Assert.True(Score(Make.Recipe("Dinner", ingredients: "6 prawns"), shellfish) > 0);
++        Assert.Equal(0.0, Score(Make.Recipe("Dinner", ingredients: "6 prawns"), shellfish)); // fixed
+     }
+ 
+     // F3 (medium): over-exclusion. Multi-word keywords are split into single words, so common
+@@ -79,7 +77,7 @@
+     {
+         var r = Make.Recipe("Dinner", ingredients: ingredient);
+ 
+-        Assert.Equal(0.0, Score(r, Make.Prefs(diets: new[] { diet }))); // wrongly excluded today
++        Assert.True(Score(r, Make.Prefs(diets: new[] { diet })) > 0); // fixed: kept
+     }
+ 
+     [Theory]
+@@ -92,7 +90,7 @@
+     {
+         var r = Make.Recipe("Dinner", ingredients: ingredient);
+ 
+-        Assert.Equal(0.0, Score(r, Make.Prefs(allergies: new[] { allergy }))); // wrongly excluded today
++        Assert.True(Score(r, Make.Prefs(allergies: new[] { allergy })) > 0); // fixed: kept
+     }
+ 
+     // F4 (medium): explanations that do not match the score.
+@@ -104,8 +102,8 @@
+ 
+         var reasons = RecommendationExplainer.Explain(pasta, Make.NoHistory(pasta), Lunch, keto);
+ 
+-        Assert.Contains("Fits your dietary preferences", reasons);  // shown to the user...
+-        Assert.Equal(0.15 * 0.4, Score(pasta, keto), 4);            // ...although keto cut the score to 40%
++        Assert.DoesNotContain("Fits your dietary preferences", reasons); // fixed
++        Assert.Equal(0.15 * 0.4, Score(pasta, keto), 4);
+     }
+ 
+     [Fact]
+@@ -116,7 +114,7 @@
+ 
+         var reasons = RecommendationExplainer.Explain(r, oldViews, Lunch, Make.Prefs());
+ 
+-        Assert.Contains("You viewed similar recipes recently", reasons);
++        Assert.Contains("You viewed this recipe before", reasons); // fixed wording
+     }
+ 
+     [Fact]
+diff -ruN a/tests/NutriAI.Tests/RankingTests.cs b/tests/NutriAI.Tests/RankingTests.cs
+--- a/tests/NutriAI.Tests/RankingTests.cs	2026-10-08 16:44:41.907280159 +0400
++++ b/tests/NutriAI.Tests/RankingTests.cs	2026-10-08 17:03:23.734748409 +0400
+@@ -70,7 +70,7 @@
+     public async Task RankAsync_uses_the_stored_preferences_and_history()
+     {
+         var milkDish = Make.Recipe("Rice Pudding", ingredients: "1 litre milk");
+-        var plain = Make.Recipe("Plain Rice");
++        var plain = Make.Recipe("Plain Rice", ingredients: "1 cup rice");
+         var store = new FakePreferencesStore(Make.Prefs(allergies: new[] { "dairy" }));
+         var service = new RecommendationService(new FakeInteractions(), store);
+ 
+diff -ruN a/tests/NutriAI.Tests/RecipeScorerTests.cs b/tests/NutriAI.Tests/RecipeScorerTests.cs
+--- a/tests/NutriAI.Tests/RecipeScorerTests.cs	2026-10-08 16:39:11.241513469 +0400
++++ b/tests/NutriAI.Tests/RecipeScorerTests.cs	2026-10-08 17:03:23.734806789 +0400
+@@ -106,7 +106,7 @@
+     [Fact]
+     public void Allergen_in_title_scores_zero_even_with_strong_history()
+     {
+-        var r = Make.Recipe("PEANUT-Butter Cookies"); // case and hyphen are normalised
++        var r = Make.Recipe("PEANUT-Butter Cookies", ingredients: "1 cup sugar"); // case and hyphen are normalised
+         var loved = Make.History(r, views: 10, saves: 3, cooks: 5, viewedDaysAgo: 0, cookedDaysAgo: 0);
+ 
+         Assert.Equal(0.0, RecipeScorer.Score(r, Make.Features(), loved, NoMatch, Make.Prefs(allergies: new[] { "nuts" })));

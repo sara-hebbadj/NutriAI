@@ -30,6 +30,10 @@ with support from Microsoft documentation and setup guidance.
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
+		<!-- Portfolio change (October 2026): keep the separate xUnit test project in tests/
+		     out of the app build. Without this, the SDK would compile the test files into the app. -->
+		<DefaultItemExcludes>$(DefaultItemExcludes);tests\**</DefaultItemExcludes>
+
 		<!-- Display name -->
 		<ApplicationTitle>NutriAI</ApplicationTitle>
 
@@ -78,6 +82,15 @@ with support from Microsoft documentation and setup guidance.
 		<PackageReference Include="SQLitePCLRaw.provider.dynamic_cdecl" Version="2.1.11" />
 		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
 		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3.android" Version="2.1.11" />
+	</ItemGroup>
+
+	<!-- Portfolio change (October 2026): the Spoonacular key is no longer in the source code.
+	     Windows reads the SPOONACULAR_API_KEY environment variable directly. An Android emulator
+	     cannot see your PC's environment variables, so on Android the variable is loaded from a
+	     local file that git ignores: Platforms\Android\spoonacular.env containing one line
+	     SPOONACULAR_API_KEY=your-key  (see README "How to run"). Skipped if the file is missing. -->
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+		<AndroidEnvironment Include="Platforms\Android\spoonacular.env" Condition="Exists('Platforms\Android\spoonacular.env')" />
 	</ItemGroup>
 
 	<ItemGroup>

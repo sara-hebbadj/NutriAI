@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36717.8 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriAI", "NutriAI.csproj", "{4512748E-1A0F-4A0E-94EC-AD20F0EC835C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriAI.Tests", "tests\NutriAI.Tests\NutriAI.Tests.csproj", "{0051432B-A98D-424C-B22F-62AF350DF09F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{4512748E-1A0F-4A0E-94EC-AD20F0EC835C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4512748E-1A0F-4A0E-94EC-AD20F0EC835C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4512748E-1A0F-4A0E-94EC-AD20F0EC835C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0051432B-A98D-424C-B22F-62AF350DF09F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0051432B-A98D-424C-B22F-62AF350DF09F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0051432B-A98D-424C-B22F-62AF350DF09F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0051432B-A98D-424C-B22F-62AF350DF09F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

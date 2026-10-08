@@ -1,0 +1,31 @@
+# Runs the xUnit tests on every push and pull request.
+# The tests use only synthetic data: no Spoonacular key, no secrets, no API calls.
+# The MAUI app itself is not built here (it needs platform workloads); see README "How to run".
+name: tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Run tests and the offline evaluation
+        run: dotnet test tests/NutriAI.Tests/NutriAI.Tests.csproj --configuration Release --logger "console;verbosity=normal"
+
+      - name: Keep the evaluation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evaluation-report
+          path: tests/NutriAI.Tests/bin/Release/net9.0/evaluation-report.md

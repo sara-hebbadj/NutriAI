@@ -361,3 +361,15 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# ---- Portfolio additions (October 2026) ----
+# API keys and other secrets: never commit them (see README "How to run")
+.env
+*.env
+Platforms/Android/spoonacular.env
+# Local SQLite databases and app data
+*.db
+*.db-shm
+*.db-wal
+# Test results and local .NET installs
+TestResults/
+.dotnet/
